@@ -188,38 +188,6 @@ LAB_BMCSDL - Lab4/
 
 ---
 
-## Quy trình đóng góp (Git Flow)
-
-Để đảm bảo mã nguồn ổn định và nhất quán giữa các thành viên, vui lòng tuân thủ quy trình sau:
-
-1. **Tạo nhánh mới** từ nhánh chính `main` để phát triển tính năng hoặc sửa lỗi:
-   ```bash
-   git checkout -b feature/TenTinhNangMoi
-   # Hoặc nếu là sửa lỗi:
-   git checkout -b fix/TenLoiCanSua
-   ```
-2. **Commit các thay đổi** của bạn bám sát quy chuẩn **Conventional Commits**:
-   - `feat: thêm chức năng giải mã điểm thi tự động`
-   - `fix: sửa lỗi compile warning nullable tại màn hình báo cáo`
-   - `docs: cập nhật tài liệu cài đặt trong README.md`
-3. **Push nhánh lên remote repository**:
-   ```bash
-   git push origin feature/TenTinhNangMoi
-   ```
-4. Mở một **Pull Request (PR)** trên GitHub, mô tả rõ những thay đổi đã thực hiện và tag các thành viên liên quan duyệt (review) trước khi merge vào nhánh chính.
-
----
-
-## Tác giả
-
-Hệ thống được phát triển bởi các thành viên:
-- **Nguyễn Văn A** - *Trưởng nhóm phát triển hệ thống & CSDL* - [@github_nva](https://github.com/nva)
-- **Trần Thị B** - *Thiết kế UI/UX & Frontend Developer* - [@github_ttb](https://github.com/ttb)
-
----
-
 ## Giấy phép
 
-Dự án này được phân phối công khai và cấp phép hợp pháp dưới dạng **Giấy phép MIT License**. Thông tin chi tiết vui lòng xem tại tệp `LICENSE` đính kèm trong thư mục gốc.#   B M C S D L _ L a b _ C l i e n t E n c r y 
- 
- 
+Dự án này được phân phối công khai và cấp phép hợp pháp dưới dạng **Giấy phép MIT License**. Thông tin chi tiết vui lòng xem tại tệp `LICENSE` đính kèm trong thư mục gốc.
