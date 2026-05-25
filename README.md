@@ -220,5 +220,6 @@ Hệ thống được phát triển bởi các thành viên:
 
 ## Giấy phép
 
-Dự án này được phân phối công khai và cấp phép hợp pháp dưới dạng **Giấy phép MIT License**. Thông tin chi tiết vui lòng xem tại tệp `LICENSE` đính kèm trong thư mục gốc.#   B M C S D L _ L a b _ C l i e n t E n c r y  
+Dự án này được phân phối công khai và cấp phép hợp pháp dưới dạng **Giấy phép MIT License**. Thông tin chi tiết vui lòng xem tại tệp `LICENSE` đính kèm trong thư mục gốc.#   B M C S D L _ L a b _ C l i e n t E n c r y 
+ 
  
