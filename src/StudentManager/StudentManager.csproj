@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <LangVersion>10.0</LangVersion>
+    <ApplicationIcon>Assets\app_icon.ico</ApplicationIcon>
+    <RootNamespace>StudentManager</RootNamespace>
+    <AssemblyName>StudentManager</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
+    <PackageReference Include="Dapper" Version="2.1.28" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="ClosedXML" Version="0.102.2" />
+    <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\login_student_management.png" />
+    <Resource Include="Assets\app_icon.ico" />
+    <Resource Include="Fonts\Montserrat-Regular.ttf" />
+    <Resource Include="Fonts\Montserrat-SemiBold.ttf" />
+    <Resource Include="Fonts\Montserrat-Bold.ttf" />
+  </ItemGroup>
+</Project>

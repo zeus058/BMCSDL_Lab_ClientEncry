@@ -1,0 +1,123 @@
+﻿/* =============================================================
+   HỆ THỐNG QUẢN LÝ SINH VIÊN (STUDENT MANAGEMENT SYSTEM)
+   Script 03: Khởi tạo dữ liệu mẫu (Seed Data)
+   -------------------------------------------------------------
+   Mục tiêu:
+   - Cung cấp dữ liệu ban đầu để chạy thử nghiệm ứng dụng.
+   - Bao gồm: 2 Nhân viên, 8 Lớp học, 3 Học phần, 100 Sinh viên.
+   - Các tài khoản được thiết lập sẵn với mật khẩu demo.
+   ============================================================= */
+
+USE QLSVNhom;
+GO
+
+-- Sử dụng Transaction để đảm bảo tính nhất quán của dữ liệu
+BEGIN TRANSACTION;
+BEGIN TRY
+
+    /* -------------------------------------------------------------
+       1. KHỞI TẠO NHÂN VIÊN (NHANVIEN)
+       Ghi chú: Mật khẩu được Hash SHA1, Lương được mã hóa RSA.
+       ------------------------------------------------------------- */
+    -- Nhân viên 1: Quản lý các lớp lẻ
+    EXEC SP_INS_PUBLIC_ENCRYPT_NHANVIEN
+        @MANV = 'NV01',
+        @HOTEN = N'Nguyễn Văn A',
+        @EMAIL = 'nva@fit.hcmus.vn',
+        @LUONG = 0x66C1DC27894A8E01C6C674BA943E38CBBD30DC18F9BC26AD80C88EB7B709D837B32B82F6D92D8B83AD388F2F0AF29541B91DB5340D4C882CEC879D75EC31EE363344A020E8EC0745D1DF3CB4F434F300EF6F13080C39CD647DF586707FDD63F440EEE17EB7595244B0D5081C87A186D9E59E6A0E77DDA0508C264A491A08D2B7D377D5DEAC60B571C8CB03F80080D1701690048DD70F8D0AF2867EF18E8C303C532E13BB5A778F090B0FE90824392E85FD7D36F4EEAE6970E9DBE9DBD4510EA31D34A10FD35B5A57DEE37EC2DD7AA68CF233D7527F8D54681C1978C26F95014A1FE329ED063C06F8B63FD1B841D0CDA049AFB8EA972F92BFCE29F64684DF9E41,
+        @TENDN = 'nva',
+        @MK = 0xE735C29DA7F074259C3E2C0EAFDC499E96CA4BA2,
+        @PUB = '<RSAKeyValue><Modulus>tvuckc4UMfKmMyMXqpbLWIJ9XEQjr97ZJ6Z5n4XXGxVVsgb60GckvucFAvThW6RYs+mWG7/83EdIjJps5sowMh5S6uaofa2catwsLe/3jY9kkcFldu1RgOGPJwvRkMxs7J5jBMhdcvCDFQEj9Y+eodrNtT5QqHxKgZRfaOQDszOwD1YOYy0zcUfstRePjsyflkBN+O8dBg7B4460J1vXQD/JxEWiZFltbd67CVgpdA84V9pt+iXkTJV2HejTxRKtOn315dK1Q629nm+wTVf0fsh2g1VxEgnHqnT/6SbFNg3HnHRldFgmDyIJLSpTuiKmJfFZlQGo6cYM1pJSMB8WoQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>';
+
+    -- Nhân viên 2: Quản lý các lớp chẵn
+    EXEC SP_INS_PUBLIC_ENCRYPT_NHANVIEN
+        @MANV = 'NV02',
+        @HOTEN = N'Trần Thị B',
+        @EMAIL = 'ttb@fit.hcmus.vn',
+        @LUONG = 0x9516427C901910CFF5410C70A9EC6CDE82377C09BAC3FC3507CBA3507A21C1AF8FF630677B546F89B9C49C6E86AA263837D7FA3E3136A857ED7AC3C72A8C1D99AD092B279DE05A45261AECE48F1BB4ECF8F0362A773185933BEF9EF57F46E5B481B02F9CA66AB926DEE4F6C7E98108C4871651D15B24B4E289D738314CCDA702000A31C4F01BE36D20FB0AC6CA253BF77B216BE2FFAC56F0279F9F4D9D83D550704A734BF8B3C5B0131EC6FBBCC639B9DBDA71799ADE5CF43B5C8FDBD7D873C6331C45BF06DCF58A7C7ECCDB170A632E4898158694971470022D1F609B2B41342490BAB3D7CFDC8217AD2AC945F7E206FD7BEF203EA4350DC2857444B9050356,
+        @TENDN = 'ttb',
+        @MK = 0xA7C2D348B4D6646DEBC8ECDD67EABB582AEAAB2D,
+        @PUB = '<RSAKeyValue><Modulus>5Xd3SFq5HXwQ32pXDBDxZrzlbe5TgN87ucIORdWROGFPyX+jkjeYgampqarNhUGFRGTAhfQu94MAOu3zf4Yx7HYG5jQwRyTaDgplnot3HqMmmLn7lUa/rfWtDlDSMKkm3s0zqyXEnT/Hk5fpaIkMXVImU2I7gWxjMaGnKLOTrHZW/CdsEKUp6ZlriEXpHhybmIFKBhl3MwyBM28YWfnmQjtvjuTDnN5KuSpxO5ZNU5zpJ9XreR49eXva9ybcy2XLEwKT0vaVogRNc364IuwPPhrlf75wEwS54EI9KQT6xEa1QHUV4po9fxaDDkrbew7MrisKTD5NJwT4IRy+2PKRHQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>';
+
+    /* -------------------------------------------------------------
+       2. KHỞI TẠO LỚP HỌC (LOP)
+       Ghi chú: Phân bổ 4 lớp cho mỗi nhân viên.
+       ------------------------------------------------------------- */
+    INSERT INTO LOP (MALOP, TENLOP, MANV)
+    VALUES
+        ('CQ2019/1', N'Chính quy 2019 Lớp 1', 'NV01'),
+        ('CQ2019/2', N'Chính quy 2019 Lớp 2', 'NV02'),
+        ('CQ2020/1', N'Chính quy 2020 Lớp 1', 'NV01'),
+        ('CQ2020/2', N'Chính quy 2020 Lớp 2', 'NV02'),
+        ('CQ2021/1', N'Chính quy 2021 Lớp 1', 'NV01'),
+        ('CQ2021/2', N'Chính quy 2021 Lớp 2', 'NV02'),
+        ('CQ2022/1', N'Chính quy 2022 Lớp 1', 'NV01'),
+        ('CQ2022/2', N'Chính quy 2022 Lớp 2', 'NV02');
+
+    /* -------------------------------------------------------------
+       3. KHỞI TẠO HỌC PHẦN (HOCPHAN)
+       ------------------------------------------------------------- */
+    INSERT INTO HOCPHAN (MAHP, TENHP, SOTC)
+    VALUES
+        ('CSDL', N'Cơ sở dữ liệu', 4),
+        ('BMCSDL', N'Bảo mật cơ sở dữ liệu', 4),
+        ('MANG', N'Mạng máy tính', 3);
+
+    /* -------------------------------------------------------------
+       4. KHỞI TẠO SINH VIÊN (SINHVIEN)
+       Ghi chú: 100 sinh viên được phân bổ vào các lớp.
+       ------------------------------------------------------------- */
+    -- Dữ liệu mẫu tiêu biểu cho Lớp CQ2019/1 (NV01 phụ trách)
+    INSERT INTO SINHVIEN (MASV, HOTEN, NGAYSINH, DIACHI, MALOP, TENDN, MATKHAU)
+    VALUES
+        (N'SV01', N'Lê Văn C', '20010512', N'Quận 1', 'CQ2019/1', 'lvc', 0x86EDC8CDAB93299F2D2BCAACB529EA0D064F1940),
+        (N'SV02', N'Phạm Thị D', '20010822', N'Quận 3', 'CQ2019/1', 'ptd', 0x3D3DC78C3DDEFCAC6988D65EF0598DDF7E25E847),
+        (N'SV05', N'Lê Thị Thu Hương', '20010315', N'Quận Bình Thạnh', 'CQ2019/1', 'sv05', 0xBE7166E39948493004170469DD2AD065FBF1F484),
+        (N'SV06', N'Nguyễn Minh Quân', '20010722', N'Quận 1', 'CQ2019/1', 'sv06', 0x4D4578AB717F0D918F92D35A18A11BB34DD2DE87),
+        (N'SV07', N'Trần Thị Phương Lan', '20011108', N'Quận 3', 'CQ2019/1', 'sv07', 0x62FB4543595736A6A9BE9BBFCE3FE273DDD7336E),
+        (N'SV08', N'Phạm Đức Hùng', '20010214', N'Quận 5', 'CQ2019/1', 'sv08', 0x189A2E34DF76389947B75F76C6FFB02E9BC8CE5A),
+        (N'SV09', N'Hoàng Thị Bích Ngọc', '20010930', N'Quận 7', 'CQ2019/1', 'sv09', 0x4E17538C961388434F841869F423203A38D6EEA2),
+        (N'SV10', N'Vũ Hoàng Long', '20010425', N'Quận 10', 'CQ2019/1', 'sv10', 0x944274D5D249FFB672D69DEFE165B0BAA4201A80),
+        (N'SV11', N'Đỗ Thị Hương Mai', '20010817', N'Quận Phú Nhuận', 'CQ2019/1', 'sv11', 0xFC5B40BC94C1F87B36702F3F0FA2AA76D4C74840),
+        (N'SV12', N'Đặng Văn Nam', '20011205', N'Quận Gò Vấp', 'CQ2019/1', 'sv12', 0x74AFC63751D3BCB881AA67C42A434DCD630D058A),
+        (N'SV13', N'Bùi Thị Thúy', '20010619', N'Quận Tân Bình', 'CQ2019/1', 'sv13', 0x8868502CF64723D8FCC7B6697419D61833CDCAFF),
+        (N'SV14', N'Ngô Văn Tuấn', '20010128', N'Quận Bình Thạnh', 'CQ2019/1', 'sv14', 0xB24FA5981BFC49413A99864E0A49DB87FBB48478),
+        (N'SV15', N'Dương Thị Linh', '20011012', N'Quận 2', 'CQ2019/1', 'sv15', 0xD0ACF92A54BEDD4D2B51CD465FBEDD8A03E0F167),
+        (N'SV16', N'Lý Văn Đức', '20010507', N'Quận 4', 'CQ2019/1', 'sv16', 0x9DBAA305E1FF2746D6503B1DCF34BFE385AA4BA9),
+        (N'SV17', N'Hà Thị Phương', '20010323', N'Quận 6', 'CQ2019/1', 'sv17', 0x927E8B5DD4D72097EE9812F233EF187E50B06CDD),
+        (N'SV18', N'Cao Văn Trung', '20010711', N'Quận 8', 'CQ2019/1', 'sv18', 0x987377EE6EE5FAE09D9C2BF26C6981B2A2AE161C),
+        (N'SV19', N'Đinh Thị Mai', '20010904', N'Quận 11', 'CQ2019/1', 'sv19', 0x1DDECEFE4834E5FC48B5FD11200C6F18B7A418EE),
+        (N'SV20', N'Võ Minh An', '20011116', N'Quận 12', 'CQ2019/1', 'sv20', 0xD47B63DF086A66481725DA1952D8C443B4E2EE84);
+
+    -- Dữ liệu mẫu cho Lớp CQ2019/2 (NV02 phụ trách)
+    INSERT INTO SINHVIEN (MASV, HOTEN, NGAYSINH, DIACHI, MALOP, TENDN, MATKHAU)
+    VALUES
+        (N'SV03', N'Vũ Hoàng E', '20011105', N'Quận 5', 'CQ2019/2', 'vhe', 0xD5911EC19453ECC3A18F3FEA9D3D66D5A0295AC3),
+        (N'SV04', N'Hoàng Kim F', '20020301', N'Quận 7', 'CQ2019/2', 'hkf', 0x2B79579DB799C83993DFEF1FF289D5FD06C955E2),
+        ('SV21', N'Lưu Thị Khánh', '20010218', N'Quận 9', 'CQ2019/2', 'sv21', 0xB6DF2DC0CF7A5659B24CB15051C0560111836507),
+        ('SV22', N'Đào Văn Phúc', '20010614', N'Quận Tân Phú', 'CQ2019/2', 'sv22', 0x3C9604C6792DEECED415D3432C1D0C43362A76C9),
+        ('SV23', N'Trịnh Thị Yến', '20010826', N'Quận Bình Tân', 'CQ2019/2', 'sv23', 0xC43200ACD6140458BE35147445320D936B9F7255),
+        ('SV24', N'Lâm Quốc Bảo', '20011130', N'Quận 12', 'CQ2019/2', 'sv24', 0x7445F28F72211FCBCD8CE0757B3B35C3AC2DE2DF),
+        ('SV25', N'Nguyễn Thị Thu', '20010405', N'Quận Bình Thạnh', 'CQ2019/2', 'sv25', 0x587138D2B632C2BB26054A06E8B4BBE5E9D2025F),
+        ('SV26', N'Trần Văn Hải', '20010917', N'Quận 1', 'CQ2019/2', 'sv26', 0x880E7829370374475DFF7ADB7B037854B8A49695),
+        ('SV27', N'Lê Thị Ngọc Anh', '20011022', N'Quận 3', 'CQ2019/2', 'sv27', 0x41D7C757B70D21A5A36C8CF991A157D7EBA24853),
+        ('SV28', N'Phạm Thanh Sơn', '20010309', N'Quận 5', 'CQ2019/2', 'sv28', 0x22CE76F3F277A153C7EB5BD81ACB576B4C503F3A),
+        ('SV29', N'Hoàng Thị Trang', '20010712', N'Quận 7', 'CQ2019/2', 'sv29', 0xC5D8337B322A5DE6177359A0FE241540D6BD0713),
+        ('SV30', N'Vũ Văn Cường', '20011215', N'Quận 10', 'CQ2019/2', 'sv30', 0xC996B890F0E86EBEE189B347803D9116196C0A19),
+        ('SV31', N'Đỗ Minh Tuấn', '20010508', N'Quận Phú Nhuận', 'CQ2019/2', 'sv31', 0xA1767031CE406027872F49862030E14B0F86F371),
+        ('SV32', N'Đặng Thị Hoa', '20010820', N'Quận Gò Vấp', 'CQ2019/2', 'sv32', 0xCA39B57D26CE13F76C879E0CAE98776A17134A52),
+        ('SV33', N'Bùi Quang Huy', '20011104', N'Quận Tân Bình', 'CQ2019/2', 'sv33', 0xA44DC4990DEAEE38472E195BF73ED633A548E9D2),
+        ('SV34', N'Ngô Thị Thảo', '20010126', N'Quận Bình Thạnh', 'CQ2019/2', 'sv34', 0x525C33B10CC159CAEB61D66833293EA9DD5BB302),
+        ('SV35', N'Dương Văn Khoa', '20010630', N'Quận 2', 'CQ2019/2', 'sv35', 0x1595A7724289058A10EB754004F66366CF88914D),
+        ('SV36', N'Lý Thị Mỹ Duyên', '20011008', N'Quận 4', 'CQ2019/2', 'sv36', 0x1F40A27C831CDF7E356C3AFBB7F786CAF2E6866B);
+
+    COMMIT TRANSACTION;
+    PRINT N'Nạp dữ liệu mẫu thành công: 8 lớp, 3 học phần, 100 sinh viên.';
+END TRY
+BEGIN CATCH
+    ROLLBACK TRANSACTION;
+    DECLARE @ErrorMsg NVARCHAR(4000) = ERROR_MESSAGE();
+    PRINT N'Lỗi khi nạp dữ liệu: ' + @ErrorMsg;
+END CATCH
+GO
+

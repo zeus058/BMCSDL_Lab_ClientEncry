@@ -1,0 +1,146 @@
+<UserControl x:Class="StudentManager.Views.ClassTranscriptView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewmodels="clr-namespace:StudentManager.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewmodels:ClassTranscriptViewModel}">
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,4,0,18">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Bảng điểm lớp chủ nhiệm" Style="{StaticResource PageTitle}" />
+                <TextBlock Text="Xem kết quả học tập của từng sinh viên trong các lớp bạn quản lý."
+                           Foreground="{StaticResource TextMuted}" />
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="320" />
+                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Danh sách sinh viên -->
+            <Border Grid.Column="0" Style="{StaticResource CardBorder}" Padding="0">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Background="{StaticResource BgSurface2}" Padding="16" CornerRadius="16,16,0,0">
+                        <TextBlock Text="Sinh viên quản lý" Style="{StaticResource SectionTitle}" />
+                    </Border>
+                    <ListBox ItemsSource="{Binding Students}" SelectedItem="{Binding SelectedStudent}" Padding="10">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,4">
+                                    <TextBlock Text="{Binding HOTEN}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}" />
+                                    <TextBlock Text="{Binding MASV}" FontSize="12" Foreground="{StaticResource TextMuted}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+
+            <!-- Chi tiết điểm -->
+            <Border Grid.Column="2" Style="{StaticResource CardBorder}" Padding="0">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Background="{StaticResource BgSurface2}" Padding="16" CornerRadius="16,16,0,0">
+                        <Grid>
+                            <TextBlock Text="Kết quả học tập" Style="{StaticResource SectionTitle}" HorizontalAlignment="Left" />
+                            <TextBlock Text="{Binding SelectedStudent.HOTEN}" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Right" />
+                        </Grid>
+                    </Border>
+
+                    <Border DockPanel.Dock="Bottom" Background="{StaticResource BgSurface2}" Padding="16">
+                        <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource TextSecondary}" FontStyle="Italic" />
+                    </Border>
+
+                    <DataGrid ItemsSource="{Binding Grades}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              HeadersVisibility="Column"
+                              RowHeight="48"
+                              GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="{StaticResource BrushDivider}">
+                        <DataGrid.Resources>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+                                <Setter Property="FontWeight" Value="Bold" />
+                                <Setter Property="Padding" Value="10,12" />
+                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                <Setter Property="BorderThickness" Value="0,0,0,1" />
+                                <Setter Property="BorderBrush" Value="{StaticResource BrushDivider}" />
+                            </Style>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                                <Setter Property="BorderThickness" Value="0" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="DataGridCell">
+                                            <Border Padding="4" Background="Transparent">
+                                                <ContentPresenter VerticalAlignment="Center" />
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </DataGrid.Resources>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Mã môn" Binding="{Binding MAHP}" Width="110">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center" />
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="FontFamily" Value="Consolas" />
+                                        <Setter Property="Foreground" Value="{StaticResource TextSecondary}" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Tên môn học" Binding="{Binding TENHP}" Width="*">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Left" />
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="12,0" />
+                                        <Setter Property="Foreground" Value="{StaticResource TextSecondary}" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Số TC" Binding="{Binding SOTC}" Width="100">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center" />
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Foreground" Value="{StaticResource TextSecondary}" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Điểm số" Binding="{Binding DiemSo}" Width="110">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center" />
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="FontWeight" Value="Bold" />
+                                        <Setter Property="FontSize" Value="15" />
+                                        <Setter Property="Foreground" Value="#FF0D9488" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

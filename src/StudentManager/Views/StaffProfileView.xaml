@@ -1,0 +1,114 @@
+<UserControl x:Class="StudentManager.Views.StaffProfileView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewmodels="clr-namespace:StudentManager.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewmodels:StaffProfileViewModel}">
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,4,0,18">
+            <TextBlock Text="Thông tin cá nhân" Style="{StaticResource PageTitle}" />
+            <TextBlock Text="Xem thông tin chi tiết và lương cơ bản của bạn."
+                       Foreground="{StaticResource TextMuted}" />
+        </StackPanel>
+
+        <Border Grid.Row="1" 
+                Style="{StaticResource CardBorder}" 
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Width="600"
+                Padding="24">
+            <StackPanel>
+                <Grid Margin="0,0,0,24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="20" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Width="80" Height="80" 
+                            CornerRadius="40" 
+                            Background="{StaticResource AccentBrush}">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                   Text="&#xE77B;" 
+                                   FontSize="36" 
+                                   Foreground="White" 
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center" />
+                    </Border>
+
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Hoten}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" />
+                        <TextBlock Text="{Binding Manv}" FontSize="14" Foreground="{StaticResource AccentBrushDark}" FontFamily="Consolas" />
+                    </StackPanel>
+                </Grid>
+
+                <Separator Margin="0,0,0,24" Background="{StaticResource BrushDivider}" />
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="12" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="12" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="12" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="24" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" MinWidth="180" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Email:" Style="{StaticResource FieldLabel}" />
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Email}" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center" />
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Tên đăng nhập:" Style="{StaticResource FieldLabel}" />
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Tendn}" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center" />
+
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Public Key (ID):" Style="{StaticResource FieldLabel}" />
+                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Pubkey}" Foreground="{StaticResource TextMuted}" FontSize="12" TextWrapping="Wrap" />
+
+                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Nhập mật khẩu để xem lương:" Style="{StaticResource FieldLabel}" VerticalAlignment="Center" />
+                    <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <PasswordBox x:Name="SalPass" Width="220" Height="38" Margin="0,0,12,0" 
+                                     PasswordChanged="PasswordBox_PasswordChanged" VerticalContentAlignment="Center" />
+                        <Button Content="Xem lương" 
+                                Command="{Binding LoadDecryptedSalaryCommand}"
+                                Style="{StaticResource ActionBtn}"
+                                Padding="25,0" Height="38"
+                                Foreground="White" />
+                    </StackPanel>
+
+                    <Border Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" 
+                            Background="{StaticResource BgSurface2}" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Visibility="{Binding DecryptedLuongcb, Converter={StaticResource StringToVis}}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Lương cơ bản của bạn là: " Foreground="{StaticResource TextPrimary}" />
+                            <TextBlock Text="{Binding DecryptedLuongcb, StringFormat={}{0:N0} VNĐ}" 
+                                       FontWeight="Bold" 
+                                       Foreground="{StaticResource AccentBrushDark}" 
+                                       FontSize="18" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <TextBlock Text="{Binding StatusMessage}" 
+                           Margin="0,20,0,0" 
+                           Foreground="{StaticResource AccentBrushDark}" 
+                           FontStyle="Italic"
+                           Visibility="{Binding StatusMessage, Converter={StaticResource StringToVis}}" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

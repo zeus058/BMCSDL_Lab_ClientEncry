@@ -1,0 +1,320 @@
+<Window x:Class="StudentManager.Views.MainView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:viewmodels="clr-namespace:StudentManager.ViewModels"
+        xmlns:views="clr-namespace:StudentManager.Views"
+        Title="Kimi"
+        Width="1366"
+        Height="820"
+        WindowStartupLocation="CenterScreen"
+        Icon="pack://application:,,,/Assets/app_icon.ico"
+        Background="{StaticResource BgBase}">
+    <Window.DataContext>
+        <viewmodels:MainViewModel />
+    </Window.DataContext>
+
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type viewmodels:ClassViewModel}">
+            <views:ClassView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:StudentViewModel}">
+            <views:StudentView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:CourseViewModel}">
+            <views:CourseView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:GradeEntryViewModel}">
+            <views:GradeEntryView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:MonitorViewModel}">
+            <views:MonitorView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:StaffProfileViewModel}">
+            <views:StaffProfileView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:ClassTranscriptViewModel}">
+            <views:ClassTranscriptView />
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid Margin="18">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="236" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0"
+                Style="{StaticResource CardBorder}"
+                Margin="0,0,18,0"
+                Padding="20">
+            <DockPanel LastChildFill="True">
+                <StackPanel DockPanel.Dock="Bottom">
+                    <!-- Profile card -->
+                    <Border Background="{StaticResource BgSurface2}"
+                            BorderBrush="{StaticResource BrushDivider}"
+                            BorderThickness="1"
+                            CornerRadius="16"
+                            Padding="14"
+                            Margin="0,16,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Avatar hình tròn -->
+                            <Border Grid.Column="0"
+                                    Width="42" Height="42"
+                                    CornerRadius="21"
+                                    Background="{StaticResource AccentBrush}">
+                                <TextBlock Text="{Binding CurrentUserInitial}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           FontSize="17"
+                                           FontWeight="Bold"
+                                           Foreground="White" />
+                            </Border>
+
+                            <!-- Thông tin -->
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding CurrentUserName}"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimary}"
+                                           TextTrimming="CharacterEllipsis" />
+                                <Border Background="{StaticResource AccentBrushSoft}"
+                                        CornerRadius="6"
+                                        Padding="6,2"
+                                        Margin="0,5,0,0"
+                                        HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding CurrentUserManv}"
+                                               FontSize="12"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource AccentBrushDark}"
+                                               FontFamily="Consolas" />
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Nút đăng xuất -->
+                    <Button Command="{Binding LogoutCommand}"
+                            Style="{StaticResource DangerBtn}"
+                            Padding="14,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets"
+                                       Text="&#xF3B1;"
+                                       FontSize="14"
+                                       Margin="0,0,8,0"
+ />
+                            <TextBlock Text="Đăng xuất"
+ />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Width="44"
+                                Height="44"
+                                Background="{StaticResource AccentBrush}"
+                                CornerRadius="14"
+                                Margin="0,0,12,0">
+                            <Image Source="pack://application:,,,/Assets/app_icon.ico"
+                                   Width="28"
+                                   Height="28"
+                                   Stretch="Uniform"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Kimi"
+                                       FontSize="24"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimary}" />
+                            <TextBlock Text="Quản lý sinh viên"
+                                       Margin="0,2,0,0"
+                                       Foreground="{StaticResource TextMuted}"
+                                       FontSize="13" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,22,0,0">
+                        <Button Command="{Binding ShowClassCommand}" HorizontalContentAlignment="Left">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavItemBtn}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ClassIsActive}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource AccentBrushSoft}" />
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                        <Setter Property="Foreground" Value="{StaticResource AccentBrushDark}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8F1;" Margin="0,0,10,0" FontSize="16" />
+                            <TextBlock Text="Lớp học" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding ShowStudentCommand}" HorizontalContentAlignment="Left">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavItemBtn}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding StudentIsActive}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource AccentBrushSoft}" />
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                        <Setter Property="Foreground" Value="{StaticResource AccentBrushDark}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE716;" Margin="0,0,10,0" FontSize="16" />
+                            <TextBlock Text="Sinh viên" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding ShowHocPhanCommand}" HorizontalContentAlignment="Left">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavItemBtn}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HocPhanIsActive}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource AccentBrushSoft}" />
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                        <Setter Property="Foreground" Value="{StaticResource AccentBrushDark}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8D2;" Margin="0,0,10,0" FontSize="16" />
+                            <TextBlock Text="Học phần" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding ShowGradeCommand}" HorizontalContentAlignment="Left">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavItemBtn}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding GradeIsActive}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource AccentBrushSoft}" />
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                        <Setter Property="Foreground" Value="{StaticResource AccentBrushDark}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED47;" Margin="0,0,10,0" FontSize="16" />
+                            <TextBlock Text="Nhập điểm" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding ShowClassGradesCommand}" HorizontalContentAlignment="Left">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavItemBtn}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ClassGradesIsActive}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource AccentBrushSoft}" />
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                        <Setter Property="Foreground" Value="{StaticResource AccentBrushDark}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE9D2;" Margin="0,0,10,0" FontSize="16" />
+                            <TextBlock Text="Tra cứu điểm" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding ShowMonitorCommand}" HorizontalContentAlignment="Left">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavItemBtn}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding MonitorIsActive}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource AccentBrushSoft}" />
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                        <Setter Property="Foreground" Value="{StaticResource AccentBrushDark}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE9D9;" Margin="0,0,10,0" FontSize="16" />
+                            <TextBlock Text="Giám sát" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding ShowEmployeeCommand}" HorizontalContentAlignment="Left">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavItemBtn}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding EmployeeIsActive}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource AccentBrushSoft}" />
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                        <Setter Property="Foreground" Value="{StaticResource AccentBrushDark}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE77B;" Margin="0,0,10,0" FontSize="16" />
+                            <TextBlock Text="Nhân viên" />
+                        </StackPanel>
+                    </Button>
+                    </StackPanel>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    Margin="0,0,0,12"
+                    Padding="14,12"
+                    CornerRadius="14"
+                    Visibility="{Binding ToastVisible, Converter={StaticResource BoolToVis}}">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ToastIsError}" Value="True">
+                                <Setter Property="Background" Value="{StaticResource BrushDanger}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Grid>
+                    <TextBlock Text="{Binding ToastMessage}"
+                               Foreground="White"
+                               FontWeight="SemiBold"
+                               Margin="0,0,28,0"
+                               TextWrapping="Wrap" />
+                    <Button Content="✕"
+                            Command="{Binding DismissToastCommand}"
+                            HorizontalAlignment="Right"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Foreground="White"
+                            Padding="0"
+                            Width="28"
+                            Height="28"
+                            MinWidth="0"
+                            MinHeight="0" />
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1" Style="{StaticResource CardBorder}" Padding="24">
+                <ContentControl Content="{Binding CurrentView}" />
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

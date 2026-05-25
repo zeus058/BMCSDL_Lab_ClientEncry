@@ -1,0 +1,88 @@
+{
+  "format": 1,
+  "restore": {
+    "d:\\BMCSDL\\LAB_BMCSDL - Lab4\\src\\StudentManager\\StudentManager.csproj": {}
+  },
+  "projects": {
+    "d:\\BMCSDL\\LAB_BMCSDL - Lab4\\src\\StudentManager\\StudentManager.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "d:\\BMCSDL\\LAB_BMCSDL - Lab4\\src\\StudentManager\\StudentManager.csproj",
+        "projectName": "StudentManager",
+        "projectPath": "d:\\BMCSDL\\LAB_BMCSDL - Lab4\\src\\StudentManager\\StudentManager.csproj",
+        "packagesPath": "C:\\Users\\trang\\.nuget\\packages\\",
+        "outputPath": "d:\\BMCSDL\\LAB_BMCSDL - Lab4\\src\\StudentManager\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\trang\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net48"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net48": {
+            "targetAlias": "net48",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.200"
+      },
+      "frameworks": {
+        "net48": {
+          "targetAlias": "net48",
+          "dependencies": {
+            "ClosedXML": {
+              "target": "Package",
+              "version": "[0.102.2, )"
+            },
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.1.28, )"
+            },
+            "LiveCharts.Wpf": {
+              "target": "Package",
+              "version": "[0.9.7, )"
+            },
+            "Microsoft.CSharp": {
+              "target": "Package",
+              "version": "[4.7.0, )"
+            },
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.4, )"
+            },
+            "System.Data.SqlClient": {
+              "target": "Package",
+              "version": "[4.8.5, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.204\\RuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "win-x86": {
+          "#import": []
+        }
+      }
+    }
+  }
+}

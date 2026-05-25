@@ -1,0 +1,253 @@
+<UserControl x:Class="StudentManager.Views.StudentView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewmodels="clr-namespace:StudentManager.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewmodels:StudentViewModel}">
+    <UserControl.Resources>
+        <!-- Cell chuẩn -->
+        <Style x:Key="SvCellText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <!-- Mã SV: căn giữa, monospace -->
+        <Style x:Key="SvIdCellText" TargetType="TextBlock" BasedOn="{StaticResource SvCellText}">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontFamily" Value="Consolas" />
+        </Style>
+        <!-- Lớp và Tài khoản: căn giữa -->
+        <Style x:Key="SvCenterCellText" TargetType="TextBlock" BasedOn="{StaticResource SvCellText}">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+        </Style>
+        <!-- Header căn giữa -->
+        <Style x:Key="CenteredColHeader" TargetType="DataGridColumnHeader">
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+        </Style>
+    </UserControl.Resources>
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,4,0,18">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="18" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0"
+                        Margin="0,0,0,10">
+                <TextBlock Text="Quản lý sinh viên" Style="{StaticResource PageTitle}" />
+                <TextBlock Text="Xem sinh viên theo từng lớp (danh sách lớp gồm tất cả lớp). Chỉ thêm / sửa / xóa sinh viên thuộc lớp bạn phụ trách; không chuyển lớp khi sửa."
+                           TextWrapping="Wrap"
+                           Foreground="{StaticResource TextMuted}" />
+            </StackPanel>
+
+            <WrapPanel Grid.Column="2"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Top">
+                <TextBox Width="240"
+                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,10,10" />
+
+            </WrapPanel>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="280" />
+                <ColumnDefinition Width="18" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource CardBorder}" Padding="0">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Background="{StaticResource BgSurface2}" Padding="16" CornerRadius="16,16,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Tất cả lớp" Style="{StaticResource SectionTitle}" />
+                            <TextBlock Text="Chọn lớp để xem sinh viên." Margin="0,6,0,0" Foreground="{StaticResource TextMuted}" />
+                        </StackPanel>
+                    </Border>
+                    <ListBox ItemsSource="{Binding MyClasses}" SelectedItem="{Binding SelectedClass}" Padding="16">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding MALOP}" Foreground="{StaticResource TextPrimary}" FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding TENLOP}" Foreground="{StaticResource TextMuted}" Margin="0,4,0,0" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="280" />
+                    <RowDefinition Height="16" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Style="{StaticResource CardBorder}" Padding="0">
+                    <DataGrid ItemsSource="{Binding Students}"
+                              SelectedItem="{Binding SelectedStudent}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Mã SV"
+                                                Binding="{Binding MASV}"
+                                                Width="120"
+                                                HeaderStyle="{StaticResource CenteredColHeader}"
+                                                ElementStyle="{StaticResource SvIdCellText}" />
+                            <DataGridTextColumn Header="Họ tên"
+                                                Binding="{Binding HOTEN}"
+                                                Width="*"
+                                                ElementStyle="{StaticResource SvCellText}" />
+                            <DataGridTextColumn Header="Lớp"
+                                                Binding="{Binding MALOP}"
+                                                Width="130"
+                                                HeaderStyle="{StaticResource CenteredColHeader}"
+                                                ElementStyle="{StaticResource SvCenterCellText}" />
+                            <DataGridTextColumn Header="Tài khoản"
+                                                Binding="{Binding TENDN}"
+                                                Width="150"
+                                                HeaderStyle="{StaticResource CenteredColHeader}"
+                                                ElementStyle="{StaticResource SvCenterCellText}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+
+                <Border Grid.Row="2" Style="{StaticResource CardBorder}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Thông tin sinh viên" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" />
+                            <Button Grid.Column="1" Command="{Binding NewStudentCommand}" Style="{StaticResource ToolbarBtn}" Padding="15,8" MinHeight="0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE710;" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                    <TextBlock Text="Thêm sinh viên" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <UniformGrid Grid.Row="1" Columns="3" Margin="0,0,0,12">
+                            <StackPanel Margin="0,0,12,0">
+                                <TextBlock Text="Mã sinh viên" Margin="0,0,0,6" />
+                                <TextBox Text="{Binding EditMasv, UpdateSourceTrigger=PropertyChanged}"
+                                         IsReadOnly="{Binding IsMasvLocked}" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,0">
+                                <TextBlock Text="Họ tên" Margin="0,0,0,6" />
+                                <TextBox Text="{Binding EditHoten, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="Ngày sinh" Margin="0,0,0,6" />
+                                <DatePicker SelectedDate="{Binding EditNgaysinh}" />
+                            </StackPanel>
+                        </UniformGrid>
+
+                        <UniformGrid Grid.Row="2" Columns="3" Margin="0,0,0,12">
+                            <StackPanel Margin="0,0,12,0">
+                                <TextBlock Text="Lớp" Margin="0,0,0,6" />
+                                <ComboBox ItemsSource="{Binding MyClasses}"
+                                          SelectedValuePath="MALOP"
+                                          SelectedValue="{Binding EditMalop, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          IsEnabled="{Binding CanChangeStudentClass}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock>
+                                                <Run Text="{Binding MALOP}" />
+                                                <Run Text=" - " />
+                                                <Run Text="{Binding TENLOP}" />
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,0">
+                                <TextBlock Text="Tên đăng nhập" Margin="0,0,0,6" />
+                                <TextBox Text="{Binding EditTendn, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="Mật khẩu" Margin="0,0,0,6" />
+                                <TextBox Text="{Binding EditMatKhau, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </UniformGrid>
+
+                        <StackPanel Grid.Row="3" Margin="0,0,0,14">
+                            <TextBlock Text="Địa chỉ" Margin="0,0,0,6" />
+                            <TextBox Text="{Binding EditDiachi, UpdateSourceTrigger=PropertyChanged}"
+                                     Height="88"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     VerticalScrollBarVisibility="Auto" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="4">
+                            <Grid Margin="0,4,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="18" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <WrapPanel Grid.Column="0">
+                                    <Button Command="{Binding SaveCommand}" Style="{StaticResource ToolbarPrimaryBtn}" Margin="0,0,0,10">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock FontFamily="Segoe MDL2 Assets"
+                                                       Text="&#xE74E;"
+                                                       Margin="0,0,8,0"
+ />
+                                            <TextBlock Text="Lưu hồ sơ"
+ />
+                                        </StackPanel>
+                                    </Button>
+                                </WrapPanel>
+
+                                <Button Grid.Column="2"
+                                        Command="{Binding DeleteCommand}"
+                                        Style="{StaticResource ToolbarDangerBtn}"
+                                        Margin="0,0,0,10"
+                                        HorizontalAlignment="Right">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock FontFamily="Segoe MDL2 Assets"
+                                                   Text="&#xE74D;"
+                                                   Margin="0,0,8,0"
+ />
+                                        <TextBlock Text="Xóa sinh viên"
+ />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                            <TextBlock Text="{Binding StatusMessage}"
+                                       Margin="0,8,0,0"
+                                       Foreground="{StaticResource AccentBrushDark}"
+                                       FontWeight="SemiBold"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                        </Grid>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

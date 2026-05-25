@@ -1,0 +1,36 @@
+<UserControl x:Class="StudentManager.Views.MonitorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewmodels="clr-namespace:StudentManager.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewmodels:MonitorViewModel}">
+    <Grid Margin="4">
+        <TabControl>
+            <TabItem Header="Query log">
+                <Border Style="{StaticResource CardBorder}" Padding="0" Margin="0,10,0,0">
+                    <DataGrid ItemsSource="{Binding Logs}" AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Thời gian" Binding="{Binding Timestamp, StringFormat=HH:mm:ss}" Width="110" />
+                            <DataGridTextColumn Header="Lệnh" Binding="{Binding Query}" Width="*" />
+                            <DataGridTextColumn Header="Tham số" Binding="{Binding Parameters}" Width="280" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+            </TabItem>
+
+            <TabItem Header="Profiler / XE">
+                <Border Style="{StaticResource CardBorder}" Margin="0,10,0,0">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="540">
+                        <TextBlock Text="{Binding ProfilerNotes}"
+                                   TextWrapping="Wrap"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   FontFamily="Consolas"
+                                   FontSize="13" />
+                    </ScrollViewer>
+                </Border>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

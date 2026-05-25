@@ -1,0 +1,183 @@
+<UserControl x:Class="StudentManager.Views.ClassView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewmodels="clr-namespace:StudentManager.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewmodels:ClassViewModel}">
+    <UserControl.Resources>
+        <Style x:Key="ClassCellText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <!-- Mã lớp: căn giữa -->
+        <Style x:Key="ClassIdCellText" TargetType="TextBlock" BasedOn="{StaticResource ClassCellText}">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontFamily" Value="Consolas" />
+        </Style>
+        <!-- Nhân viên phụ trách: căn giữa -->
+        <Style x:Key="ClassOwnerCellText" TargetType="TextBlock" BasedOn="{StaticResource ClassCellText}">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <!-- Header căn giữa dùng cho cột 1 và 3 -->
+        <Style x:Key="CenteredColumnHeader" TargetType="DataGridColumnHeader">
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="290" />
+            <RowDefinition Height="16" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,4,0,18">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="18" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0"
+                        Margin="0,0,0,10">
+                <TextBlock Text="Quản lý lớp" Style="{StaticResource PageTitle}" />
+                <TextBlock Text="Danh sách tất cả các lớp trong hệ thống."
+                           TextWrapping="Wrap"
+                           Foreground="{StaticResource TextMuted}" />
+            </StackPanel>
+
+            <Grid Grid.Column="2"
+                  HorizontalAlignment="Right"
+                  VerticalAlignment="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <WrapPanel Grid.Column="0">
+                    <Button Command="{Binding AddCommand}" Style="{StaticResource ToolbarBtn}" Margin="0,0,10,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets"
+                                       Text="&#xE710;"
+                                       Margin="0,0,8,0"
+ />
+                            <TextBlock Text="Tạo lớp"
+ />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding SaveCommand}" Style="{StaticResource ToolbarPrimaryBtn}" Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets"
+                                       Text="&#xE74E;"
+                                       Margin="0,0,8,0"
+ />
+                            <TextBlock Text="Lưu thay đổi"
+ />
+                        </StackPanel>
+                    </Button>
+                </WrapPanel>
+
+                <Button Grid.Column="2"
+                        Command="{Binding DeleteCommand}"
+                        Style="{StaticResource ToolbarDangerBtn}"
+                        Margin="0,0,0,10"
+                        HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontFamily="Segoe MDL2 Assets"
+                                   Text="&#xE74D;"
+                                   Margin="0,0,8,0"
+ />
+                        <TextBlock Text="Xóa lớp"
+ />
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Grid>
+
+        <Border Grid.Row="1" Style="{StaticResource CardBorder}" Padding="0">
+            <DockPanel>
+                <Border DockPanel.Dock="Top"
+                        Background="{StaticResource BgSurface2}"
+                        BorderBrush="{StaticResource BrushDivider}"
+                        BorderThickness="0,0,0,1"
+                        Padding="18,14">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Toàn bộ lớp học"
+                                   Style="{StaticResource SectionTitle}" />
+                        <TextBlock Text="Hiển thị tất cả các lớp trong hệ thống."
+                                   Margin="16,1,0,0"
+                                   Foreground="{StaticResource TextMuted}" />
+                    </StackPanel>
+                </Border>
+
+                <DataGrid ItemsSource="{Binding Classes}"
+                          SelectedItem="{Binding SelectedClass}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          HeadersVisibility="Column"
+                          CanUserResizeColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Mã lớp"
+                                        Binding="{Binding MALOP}"
+                                        Width="140"
+                                        HeaderStyle="{StaticResource CenteredColumnHeader}"
+                                        ElementStyle="{StaticResource ClassIdCellText}" />
+                    <DataGridTextColumn Header="Tên lớp"
+                                        Binding="{Binding TENLOP}"
+                                        Width="*"
+                                        ElementStyle="{StaticResource ClassCellText}" />
+                    <DataGridTextColumn Header="Nhân viên phụ trách"
+                                        Binding="{Binding MANV}"
+                                        Width="200"
+                                        HeaderStyle="{StaticResource CenteredColumnHeader}"
+                                        ElementStyle="{StaticResource ClassOwnerCellText}" />
+                </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
+        </Border>
+
+        <Border Grid.Row="3" Style="{StaticResource CardBorder}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Chi tiết lớp"
+                           Style="{StaticResource SectionTitle}"
+                           Margin="0,0,0,16" />
+
+                <UniformGrid Grid.Row="1" Columns="3" Margin="0,0,0,14">
+                    <StackPanel Margin="0,0,12,0">
+                        <TextBlock Text="Mã lớp" Margin="0,0,0,6" />
+                        <TextBox Text="{Binding EditMalop, UpdateSourceTrigger=PropertyChanged}"
+                                 IsReadOnly="{Binding IsMalopReadOnly}" />
+                    </StackPanel>
+                    <StackPanel Margin="0,0,12,0">
+                        <TextBlock Text="Tên lớp" Margin="0,0,0,6" />
+                        <TextBox Text="{Binding EditTenlop, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="Nhân viên phụ trách" Margin="0,0,0,6" />
+                        <TextBox Text="{Binding EditManv, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+                </UniformGrid>
+
+                <TextBlock Grid.Row="2"
+                           Text="{Binding StatusMessage}"
+                           Margin="0,4,0,0"
+                           Foreground="{StaticResource AccentBrushDark}"
+                           FontWeight="SemiBold"
+                           TextWrapping="Wrap" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
