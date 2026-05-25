@@ -54,7 +54,25 @@ Dự án triển khai mô hình **An toàn thông tin phía người dùng (Clie
 
 ### Sơ đồ Kiến trúc Bảo mật đầu cuối:
 
-![Diagram](./images/Diagram.svg)
+```mermaid
+graph TD
+    subgraph Client ["Client-Side WPF Application"]
+        P["Mật khẩu thô"] --> H["Băm SHA-1 với muối TENDN|MK"] --> HE["Mật khẩu Hash nhị phân"]
+        L["Lương cơ bản thô"] --> E1["Mã hóa RSA-2048 bằng Public Key của Nhân viên"] --> LE["Lương Mã hóa nhị phân"]
+        D["Điểm thi thô"] --> E2["Mã hóa RSA-2048 bằng Public Key của Giáo viên phụ trách"] --> DE["Điểm Mã hóa nhị phân"]
+    end
+
+    subgraph Network ["Đường truyền mạng"]
+        HE -->|Truyền dữ liệu mã hóa/băm| DB
+        LE -->|Truyền dữ liệu mã hóa/băm| DB
+        DE -->|Truyền dữ liệu mã hóa/băm| DB
+    end
+
+    subgraph Server ["Database Server SQL Server"]
+        DB[("Cơ sở dữ liệu QLSVNhom")]
+        DB -->|Lưu trữ an toàn tuyệt đối dạng VARBINARY| C["MATKHAU, LUONG, DIEMTHI"]
+    end
+```
 
 ---
 
