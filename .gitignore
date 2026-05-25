@@ -1,0 +1,19 @@
+## Ignore Visual Studio & .NET build outputs
+bin/
+obj/
+src/StudentManager/bin/
+src/StudentManager/obj/
+
+## Ignore generated keys (Security First!)
+Keys/
+src/StudentManager/bin/Debug/net48/Keys/
+
+## User-specific files
+*.user
+*.userosscache
+*.sln.docstates
+
+## Visual Studio temporary files
+.vs/
+.dotnet/
+.dotnet-home/
