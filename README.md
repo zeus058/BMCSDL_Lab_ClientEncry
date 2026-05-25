@@ -16,9 +16,7 @@ Một hệ thống quản lý thông tin sinh viên, lớp học và học phầ
 3. [Công nghệ sử dụng](#công-nghệ-sử-dụng)
 4. [Hướng dẫn khởi chạy cục bộ](#hướng-dẫn-khởi-chạy-cục-bộ)
 5. [Cấu trúc thư mục](#cấu-trúc-thư-mục)
-6. [Quy trình đóng góp (Git Flow)](#quy-trình-đóng-góp-git-flow)
-7. [Tác giả](#tác-giả)
-8. [Giấy phép](#giấy-phép)
+6. [Giấy phép](#giấy-phép)
 
 ---
 
