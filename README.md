@@ -43,9 +43,10 @@ Dự án triển khai mô hình **An toàn thông tin phía người dùng (Clie
 - Mật khẩu nhân viên và sinh viên được băm ngay tại Client bằng thuật toán **SHA-1** kết hợp muối dạng chuỗi: `TENDN + "|" + Password`.
 - Cơ sở dữ liệu lưu trữ trực tiếp chuỗi hash nhị phân (`VARBINARY`) và so khớp trực tiếp, hoàn toàn loại bỏ các hàm băm `HASHBYTES` ở phía Server để tối ưu hiệu năng và bảo mật đường truyền.
 
-### 2. Mã hóa Lương (Client-side RSA-2048)
-- Khi khởi tạo nhân viên, client sinh cặp khóa RSA-2048, lưu khóa công khai XML trong cột `PUBKEY` ở DB, khóa riêng lưu cục bộ tại `Keys/{MANV}_private.xml`.
-- Mức lương được mã hóa RSA-2048 tại client trước khi gọi Stored Procedure. Khi hiển thị, client nạp khóa riêng cục bộ để tự động giải mã.
+### 2. Mã hóa Lương (Client-side Deterministic RSA-2048)
+- Khi khởi tạo nhân viên mới, Client sinh cặp khóa Deterministic RSA-2048 xác định từ `(Password, MANV)`. Khóa công khai dạng XML được lưu trong cột `PUBKEY` ở cơ sở dữ liệu.
+- Khóa riêng (Private Key) hoàn toàn **không** lưu cục bộ trên ổ đĩa máy tính hay lưu trên DB để tránh rò rỉ. Khi cần dùng (ví dụ giải mã lương hoặc giải mã điểm số), khóa riêng sẽ được tái tạo động tức thời từ mật khẩu và mã nhân viên bằng thuật toán sinh khóa xác định.
+- Mức lương được mã hóa RSA-2048 tại Client trước khi lưu trữ vào DB. Khi hiển thị, người dùng nhập lại mật khẩu để Client tái tạo khóa riêng và giải mã trực tiếp.
 
 ### 3. Mã hóa Điểm số (Client-side RSA-2048)
 - Điểm thi của sinh viên được mã hóa RSA bằng khóa công khai của nhân viên phụ trách lớp. Chỉ có nhân viên sở hữu khóa riêng tương ứng mới có thể giải mã và xem điểm.
@@ -137,7 +138,7 @@ Mở tệp [App.config](file:///d:/BMCSDL/LAB_BMCSDL - Lab4/src/StudentManager/A
 <connectionStrings>
     <add name="QLSVNhom" 
          connectionString="Data Source=YOUR_SERVER_NAME;Initial Catalog=QLSVNhom;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;" 
-         providerName="System.Data.SqlClient" />
+         providerName="Microsoft.Data.SqlClient" />
 </connectionStrings>
 ```
 
