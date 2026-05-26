@@ -4,8 +4,9 @@ using System.Windows;
 using System.Windows.Input;
 using Dapper;
 using StudentManager.Helpers;
-using StudentManager.Models;
 using StudentManager.Views;
+using StudentManager.Models;
+using System.Threading.Tasks;
 
 namespace StudentManager.ViewModels
 {
@@ -33,16 +34,18 @@ namespace StudentManager.ViewModels
         }
 
         public ICommand LoginCommand { get; }
+        public ICommand OpenChangePasswordCommand { get; }
 
         public LoginViewModel()
         {
             LoginCommand = new RelayCommand(_ => ExecuteLogin(), _ => CanLogin());
+            OpenChangePasswordCommand = new RelayCommand(_ => ExecuteOpenChangePassword());
         }
 
         private bool CanLogin() =>
             !string.IsNullOrWhiteSpace(LoginId) && !string.IsNullOrWhiteSpace(Password);
 
-        private void ExecuteLogin()
+        private async void ExecuteLogin()
         {
             ErrorMessage = "";
 
@@ -51,41 +54,67 @@ namespace StudentManager.ViewModels
                 using var conn = DatabaseHelper.GetConnection();
                 conn.Open();
 
-                var tendn = conn.QueryFirstOrDefault<string>(
-                    "SELECT TENDN FROM NHANVIEN WHERE MANV = @LOGIN OR TENDN = @LOGIN",
-                    new { LOGIN = LoginId.Trim() });
-
-                if (string.IsNullOrEmpty(tendn))
-                {
-                    ErrorMessage = "Mã nhân viên hoặc mật khẩu không chính xác.";
-                    return;
-                }
-
-                byte[] hashedPw = CryptoHelper.Sha1(tendn + "|" + Password);
-
-                var user = conn.QueryFirstOrDefault<NhanVien>(
+                // 1. Chỉ gọi 1 SP duy nhất lấy thông tin đăng nhập (nhận cả thông tin thật hoặc dummy)
+                var userRow = await conn.QueryFirstOrDefaultAsync<dynamic>(
                     "SP_LOGIN_NHANVIEN",
-                    new
-                    {
-                        LOGIN = LoginId.Trim(),
-                        MK = hashedPw
-                    },
+                    new { LOGIN = LoginId.Trim() },
                     commandType: CommandType.StoredProcedure);
 
-                if (user == null)
+                if (userRow == null)
                 {
                     ErrorMessage = "Mã nhân viên hoặc mật khẩu không chính xác.";
                     return;
                 }
 
-                RsaKeyProvisioning.EnsureLocalKeyPair(user.MANV);
+                string tendn = userRow.TENDN;
+                byte[] matkhauHash = userRow.MATKHAU;
 
-                CurrentUser.MANV = user.MANV;
-                CurrentUser.HOTEN = user.HOTEN;
-                CurrentUser.EMAIL = user.EMAIL ?? "";
-                CurrentUser.TENDN = user.TENDN ?? "";
-                CurrentUser.PUBKEY = user.PUBKEY ?? "";
-                CurrentUser.CurrentPassword = Password;
+                // 2. Tính toán hash mật khẩu dạng nhị phân tại Client
+                byte[] clientHashedPw = CryptoHelper.Sha1(tendn + "|" + Password);
+
+                // 3. So khớp hash tại Client
+                bool isMatched = true;
+                if (matkhauHash.Length != clientHashedPw.Length)
+                {
+                    isMatched = false;
+                }
+                else
+                {
+                    for (int i = 0; i < matkhauHash.Length; i++)
+                    {
+                        if (matkhauHash[i] != clientHashedPw[i])
+                        {
+                            isMatched = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (!isMatched || tendn == "dummy")
+                {
+                    ErrorMessage = "Mã nhân viên hoặc mật khẩu không chính xác.";
+                    return;
+                }
+
+                string userPubKey = userRow.PUBKEY;
+
+                // Nếu PUBKEY trống (lần đầu đăng nhập), tự động sinh khóa và cập nhật
+                if (string.IsNullOrWhiteSpace(userPubKey))
+                {
+                    // Chỉ sinh khóa RSA tại Client khi chưa có trên DB (thường chỉ cho lần đầu đăng nhập)
+                    var keys = await Task.Run(() => CryptoHelper.GenerateDeterministicKeyPair(Password, (string)userRow.MANV));
+                    await conn.ExecuteAsync(
+                        "UPDATE NHANVIEN SET PUBKEY = @PUB WHERE MANV = @MANV",
+                        new { PUB = keys.PublicKeyXml, MANV = (string)userRow.MANV });
+                    userPubKey = keys.PublicKeyXml;
+                    DatabaseHelper.LogQuery("UPDATE NHANVIEN SET PUBKEY", new { MANV = (string)userRow.MANV });
+                }
+
+                CurrentUser.MANV = userRow.MANV;
+                CurrentUser.HOTEN = userRow.HOTEN;
+                CurrentUser.EMAIL = userRow.EMAIL ?? "";
+                CurrentUser.TENDN = userRow.TENDN ?? "";
+                CurrentUser.PUBKEY = userPubKey;
 
                 DatabaseHelper.LogQuery("EXEC SP_LOGIN_NHANVIEN", new { LOGIN = LoginId.Trim() });
 
@@ -101,6 +130,15 @@ namespace StudentManager.ViewModels
             {
                 ErrorMessage = UserFacingMessage.ForLogin(ex);
             }
+        }
+
+        private void ExecuteOpenChangePassword()
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var changePwWindow = new ChangePasswordWindow();
+                changePwWindow.ShowDialog();
+            });
         }
     }
 }

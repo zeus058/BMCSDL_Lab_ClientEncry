@@ -91,21 +91,21 @@ namespace StudentManager.ViewModels
         private bool CanSave() =>
             !string.IsNullOrWhiteSpace(EditMalop) && !string.IsNullOrWhiteSpace(EditTenlop);
 
-        private void Load()
+        private async void Load()
         {
             var currentId = SelectedClass?.MALOP;
 
             try
             {
                 using var conn = DatabaseHelper.GetConnection();
-                var list = conn.Query<Lop>(
-                    "SELECT * FROM LOP",
-                    commandType: CommandType.Text).ToList();
+                var list = (await conn.QueryAsync<Lop>(
+                    "SP_SEL_LOP",
+                    commandType: CommandType.StoredProcedure)).ToList();
 
                 Classes = new ObservableCollection<Lop>(list);
                 SelectedClass = list.FirstOrDefault(item => item.MALOP == currentId);
                 
-                DatabaseHelper.LogQuery("SELECT * FROM LOP");
+                DatabaseHelper.LogQuery("EXEC SP_SEL_LOP");
                 StatusMessage = list.Count == 0
                     ? "Đã tải danh sách lớp (chưa có lớp nào)."
                     : $"Đã tải danh sách lớp ({list.Count} lớp).";
@@ -125,7 +125,7 @@ namespace StudentManager.ViewModels
             StatusMessage = "Vui lòng nhập thông tin lớp mới và mã NV phụ trách, sau đó bấm Lưu.";
         }
 
-        private void Save()
+        private async void Save()
         {
             try
             {
@@ -134,7 +134,7 @@ namespace StudentManager.ViewModels
 
                 if (SelectedClass == null)
                 {
-                    conn.Execute(
+                    await conn.ExecuteAsync(
                         "SP_INS_LOP",
                         new
                         {
@@ -150,7 +150,7 @@ namespace StudentManager.ViewModels
                 }
                 else
                 {
-                    conn.Execute(
+                    await conn.ExecuteAsync(
                         "SP_UPD_LOP",
                         new
                         {
@@ -173,7 +173,7 @@ namespace StudentManager.ViewModels
             }
         }
 
-        private void Delete()
+        private async void Delete()
         {
             if (SelectedClass == null)
                 return;
@@ -188,7 +188,7 @@ namespace StudentManager.ViewModels
             try
             {
                 using var conn = DatabaseHelper.GetConnection();
-                conn.Execute(
+                await conn.ExecuteAsync(
                     "SP_DEL_LOP",
                     new
                     {

@@ -1,3 +1,4 @@
+using System.Windows;
 using System.Windows.Controls;
 using StudentManager.ViewModels;
 
@@ -9,6 +10,14 @@ namespace StudentManager.Views
         {
             InitializeComponent();
             DataContext = new ClassTranscriptViewModel();
+        }
+
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is ClassTranscriptViewModel vm && sender is PasswordBox pb)
+            {
+                vm.DecryptPassword = pb.Password;
+            }
         }
     }
 }

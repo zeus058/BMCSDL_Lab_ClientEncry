@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -7,49 +6,16 @@ namespace StudentManager.Helpers
 {
     public static class CryptoHelper
     {
-        private static readonly string KeyDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Keys");
-
-        static CryptoHelper()
+        /// <summary>
+        /// Sinh cặp khóa RSA-2048 xác định từ mật khẩu và mã nhân viên.
+        /// Cùng (password, manv) luôn sinh cùng cặp khóa.
+        /// </summary>
+        public static (string PublicKeyXml, string PrivateKeyXml) GenerateDeterministicKeyPair(string password, string manv)
         {
-            if (!Directory.Exists(KeyDirectory))
-                Directory.CreateDirectory(KeyDirectory);
+            return DeterministicRsa.Generate(password, manv);
         }
 
-        public static string GetPublicKeyPath(string manv) => Path.Combine(KeyDirectory, $"{manv}_public.xml");
-
-        public static string GetPrivateKeyPath(string manv) => Path.Combine(KeyDirectory, $"{manv}_private.xml");
-
-        public static bool HasLocalKeyPair(string manv) =>
-            File.Exists(GetPublicKeyPath(manv)) && File.Exists(GetPrivateKeyPath(manv));
-
-        public static (string PublicKeyXml, string PrivateKeyXml) GenerateRSAKeyPair(int keySize = 512)
-        {
-            using var rsa = new RSACryptoServiceProvider(keySize);
-            return (rsa.ToXmlString(false), rsa.ToXmlString(true));
-        }
-
-        public static void SavePrivateKeyLocal(string manv, string privateKeyXml)
-        {
-            File.WriteAllText(GetPrivateKeyPath(manv), privateKeyXml);
-        }
-
-        public static void SavePublicKeyLocal(string manv, string publicKeyXml)
-        {
-            File.WriteAllText(GetPublicKeyPath(manv), publicKeyXml);
-        }
-
-        public static string? LoadPrivateKeyLocal(string manv)
-        {
-            var path = GetPrivateKeyPath(manv);
-            return File.Exists(path) ? File.ReadAllText(path) : null;
-        }
-
-        public static string? LoadPublicKeyLocal(string manv)
-        {
-            var path = GetPublicKeyPath(manv);
-            return File.Exists(path) ? File.ReadAllText(path) : null;
-        }
-
+        /// <summary>Mã hóa chuỗi plaintext bằng RSA Public Key (XML).</summary>
         public static byte[] EncryptRSA(string plainText, string publicKeyXml)
         {
             using var rsa = new RSACryptoServiceProvider();
@@ -58,6 +24,7 @@ namespace StudentManager.Helpers
             return rsa.Encrypt(data, false);
         }
 
+        /// <summary>Giải mã dữ liệu bằng RSA Private Key (XML).</summary>
         public static string DecryptRSA(byte[] cipherText, string privateKeyXml)
         {
             using var rsa = new RSACryptoServiceProvider();
@@ -66,12 +33,14 @@ namespace StudentManager.Helpers
             return Encoding.UTF8.GetString(decryptedData);
         }
 
+        /// <summary>Băm SHA-1 → byte[] (dùng cho mật khẩu).</summary>
         public static byte[] Sha1(string input)
         {
             using var sha1 = SHA1.Create();
             return sha1.ComputeHash(Encoding.UTF8.GetBytes(input));
         }
 
+        /// <summary>Băm SHA-1 → chuỗi hex.</summary>
         public static string Sha1Hex(string input)
         {
             using var sha1 = SHA1.Create();

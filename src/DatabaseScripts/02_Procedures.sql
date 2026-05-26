@@ -1,7 +1,7 @@
 USE QLSVNhom;
 GO
 
--- Câu ci) SP_INS_PUBLIC_ENCRYPT_NHANVIEN: Thêm nhân viên mới (Mã hóa và băm được thực hiện ở Client)
+-- 1. SP_INS_PUBLIC_ENCRYPT_NHANVIEN: Thêm nhân viên mới (Mã hóa và băm được thực hiện ở Client)
 CREATE OR ALTER PROCEDURE SP_INS_PUBLIC_ENCRYPT_NHANVIEN
     @MANV VARCHAR(20),
     @HOTEN NVARCHAR(100),
@@ -37,18 +37,13 @@ BEGIN
 END
 GO
 
-/* EXEC SP_INS_PUBLIC_NHANVIEN 'NV13', 'TRAN GIA HIEN', 'TGH@', 3000000, 'TGH', 'abcd12'
-SELECT * FROM NHANVIEN;
-GO */
-
--- Câu cii) SP_SEL_PUBLIC_NHANVIEN: Lấy thông tin nhân viên (bao gồm giải mã lương)
+-- 2. SP_SEL_PUBLIC_ENCRYPT_NHANVIEN: Lấy thông tin nhân viên kèm lương đã mã hóa
 CREATE OR ALTER PROCEDURE SP_SEL_PUBLIC_ENCRYPT_NHANVIEN
     @TENDN NVARCHAR(100),
     @MK VARBINARY(MAX)
 AS
 BEGIN
     SET NOCOUNT ON;
-    -- Trả về lương nhị phân chưa giải mã để Client thực hiện giải mã
     SELECT
         n.MANV,
         n.HOTEN,
@@ -62,25 +57,65 @@ BEGIN
 END
 GO
 
-/* EXEC SP_SEL_PUBLIC_ENCRYPT_NHANVIEN 'TGH', 0x...
-GO */
-
--- Câu d)
--- SP_LOGIN_NHANVIEN: Xác thực đăng nhập nhân viên (Dùng mật khẩu băm SHA1 dạng nhị phân từ client)
+-- 3. SP_LOGIN_NHANVIEN: Xác thực đăng nhập (Gộp thành 1 SP duy nhất chống MANV Enumeration)
 CREATE OR ALTER PROCEDURE SP_LOGIN_NHANVIEN
-    @LOGIN NVARCHAR(100),
-    @MK VARBINARY(MAX)
+    @LOGIN VARCHAR(20)
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT TOP (1) MANV, HOTEN, EMAIL, TENDN, PUBKEY
-    FROM NHANVIEN
-    WHERE MANV = @LOGIN COLLATE SQL_Latin1_General_CP1_CS_AS
-      AND MATKHAU = @MK;
+    IF EXISTS (SELECT 1 FROM NHANVIEN WHERE MANV = @LOGIN)
+    BEGIN
+        SELECT MANV, HOTEN, EMAIL, TENDN, PUBKEY, MATKHAU
+        FROM NHANVIEN
+        WHERE MANV = @LOGIN;
+    END
+    ELSE
+    BEGIN
+        -- Trả về dữ liệu dummy có cấu trúc y hệt để tránh kẻ tấn công dò tìm tài khoản
+        SELECT 
+            @LOGIN AS MANV, 
+            N'Không tồn tại' AS HOTEN, 
+            'dummy@fit.hcmus.vn' AS EMAIL, 
+            'dummy' AS TENDN, 
+            '' AS PUBKEY, 
+            0x1234567890ABCDEF1234567890ABCDEF12345678 AS MATKHAU;
+    END
 END
 GO
 
--- SP_SEL_LOP_BY_OWNER: Lấy danh sách lớp do nhân viên quản lý
+-- 4. SP_CHANGE_PASSWORD_NHANVIEN: Đổi mật khẩu nhân viên và re-encrypt LUONG
+CREATE OR ALTER PROCEDURE SP_CHANGE_PASSWORD_NHANVIEN
+    @MANV VARCHAR(20),
+    @OLD_MK VARBINARY(MAX),
+    @NEW_MK VARBINARY(MAX),
+    @NEW_PUB VARCHAR(MAX),
+    @NEW_LUONG VARBINARY(MAX) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    -- Xác thực lại mật khẩu cũ trước khi cho phép đổi
+    IF NOT EXISTS (SELECT 1 FROM NHANVIEN WHERE MANV = @MANV AND MATKHAU = @OLD_MK)
+        THROW 50015, N'Mật khẩu cũ không chính xác.', 1;
+
+    UPDATE NHANVIEN
+    SET MATKHAU = @NEW_MK,
+        PUBKEY = @NEW_PUB,
+        LUONG = @NEW_LUONG
+    WHERE MANV = @MANV;
+END
+GO
+
+-- 5. SP_SEL_LOP: Lấy tất cả lớp học trong hệ thống
+CREATE OR ALTER PROCEDURE SP_SEL_LOP AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT MALOP, TENLOP, MANV
+    FROM LOP
+    ORDER BY MALOP;
+END
+GO
+
+-- 6. SP_SEL_LOP_BY_OWNER: Lấy danh sách lớp do nhân viên quản lý
 CREATE OR ALTER PROCEDURE SP_SEL_LOP_BY_OWNER
     @CALLER_MANV VARCHAR(20)
 AS
@@ -93,7 +128,7 @@ BEGIN
 END
 GO
 
--- SP_INS_LOP: Thêm lớp học mới
+-- 7. SP_INS_LOP: Thêm lớp học mới
 CREATE OR ALTER PROCEDURE SP_INS_LOP
     @CALLER_MANV VARCHAR(20),
     @MALOP VARCHAR(20),
@@ -111,7 +146,7 @@ BEGIN
 END
 GO
 
--- SP_UPD_LOP: Cập nhật thông tin lớp học
+-- 8. SP_UPD_LOP: Cập nhật lớp học có kiểm tra quyền sở hữu
 CREATE OR ALTER PROCEDURE SP_UPD_LOP
     @CALLER_MANV VARCHAR(20),
     @MALOP VARCHAR(20),
@@ -120,13 +155,17 @@ CREATE OR ALTER PROCEDURE SP_UPD_LOP
 AS
 BEGIN
     SET NOCOUNT ON;
+    -- Ràng buộc: Chỉ người đang quản lý lớp này mới được phép cập nhật lớp
+    IF NOT EXISTS (SELECT 1 FROM LOP WHERE MALOP = @MALOP AND MANV = @CALLER_MANV)
+        THROW 50005, N'Bạn không có quyền cập nhật lớp này.', 1;
+
     UPDATE LOP
     SET TENLOP = @TENLOP, MANV = @NEW_MANV
     WHERE MALOP = @MALOP;
 END
 GO
 
--- SP_DEL_LOP: Xóa lớp học (Kiểm tra điều kiện ràng buộc)
+-- 9. SP_DEL_LOP: Xóa lớp học (Kiểm tra điều kiện ràng buộc)
 CREATE OR ALTER PROCEDURE SP_DEL_LOP
     @CALLER_MANV VARCHAR(20),
     @MALOP VARCHAR(20)
@@ -143,7 +182,7 @@ BEGIN
 END
 GO
 
--- SP_SEL_SINHVIEN_BY_OWNER: Lấy danh sách sinh viên thuộc các lớp do nhân viên quản lý
+-- 10. SP_SEL_SINHVIEN_BY_OWNER: Lấy sinh viên thuộc các lớp do nhân viên quản lý
 CREATE OR ALTER PROCEDURE SP_SEL_SINHVIEN_BY_OWNER
     @CALLER_MANV VARCHAR(20)
 AS
@@ -157,7 +196,21 @@ BEGIN
 END
 GO
 
--- SP_INS_SINHVIEN: Thêm sinh viên mới (Hash mật khẩu SHA1 được thực hiện ở Client)
+-- 11. SP_SEL_SINHVIEN_BY_CLASS: Lấy sinh viên của một lớp (Tất cả nhân viên đều xem được)
+CREATE OR ALTER PROCEDURE SP_SEL_SINHVIEN_BY_CLASS
+    @CALLER_MANV VARCHAR(20) = NULL,
+    @MALOP VARCHAR(20)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT MASV, HOTEN, NGAYSINH, DIACHI, MALOP, TENDN
+    FROM SINHVIEN
+    WHERE MALOP = @MALOP
+    ORDER BY MASV;
+END
+GO
+
+-- 12. SP_INS_SINHVIEN: Thêm sinh viên mới (Hash mật khẩu SHA1 được thực hiện ở Client)
 CREATE OR ALTER PROCEDURE SP_INS_SINHVIEN
     @CALLER_MANV VARCHAR(20),
     @MASV VARCHAR(20),
@@ -179,7 +232,41 @@ BEGIN
 END
 GO
 
--- SP_DEL_SINHVIEN_BY_OWNER: Xóa sinh viên và bảng điểm liên quan
+-- 13. SP_UPD_SINHVIEN: Cập nhật thông tin sinh viên có phân quyền sở hữu
+CREATE OR ALTER PROCEDURE SP_UPD_SINHVIEN
+    @CALLER_MANV VARCHAR(20),
+    @MASV VARCHAR(20),
+    @HOTEN NVARCHAR(100),
+    @NGAYSINH DATETIME,
+    @DIACHI NVARCHAR(200),
+    @TENDN NVARCHAR(100),
+    @MK VARBINARY(MAX) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    -- Ràng buộc: Giáo viên phải quản lý lớp của sinh viên này mới được phép cập nhật
+    IF NOT EXISTS (
+        SELECT 1 FROM SINHVIEN s
+        INNER JOIN LOP l ON l.MALOP = s.MALOP
+        WHERE s.MASV = @MASV AND l.MANV = @CALLER_MANV
+    )
+        THROW 50009, N'Bạn không có quyền cập nhật thông tin sinh viên này.', 1;
+
+    -- Kiểm tra trùng tên đăng nhập của sinh viên khác
+    IF EXISTS (SELECT 1 FROM SINHVIEN WHERE TENDN = @TENDN AND MASV <> @MASV)
+        THROW 50002, N'Tên đăng nhập đã tồn tại.', 1;
+
+    UPDATE SINHVIEN
+    SET HOTEN = @HOTEN,
+        NGAYSINH = @NGAYSINH,
+        DIACHI = @DIACHI,
+        TENDN = @TENDN,
+        MATKHAU = COALESCE(@MK, MATKHAU)
+    WHERE MASV = @MASV;
+END
+GO
+
+-- 14. SP_DEL_SINHVIEN_BY_OWNER: Xóa sinh viên và bảng điểm liên quan
 CREATE OR ALTER PROCEDURE SP_DEL_SINHVIEN_BY_OWNER
     @CALLER_MANV VARCHAR(20),
     @MASV VARCHAR(20)
@@ -206,7 +293,7 @@ BEGIN
 END
 GO
 
--- SP_UPSERT_BANGDIEM: Cập nhật hoặc thêm mới điểm (Đã mã hóa từ Client)
+-- 15. SP_UPSERT_BANGDIEM: Cập nhật hoặc thêm mới điểm (Đã mã hóa từ Client)
 CREATE OR ALTER PROCEDURE SP_UPSERT_BANGDIEM
     @CALLER_MANV VARCHAR(20),
     @MASV VARCHAR(20),
@@ -230,7 +317,7 @@ BEGIN
 END
 GO
 
--- SP_SEL_BANGDIEM_DETAILED_BY_STUDENT: Xem bảng điểm chi tiết của sinh viên
+-- 16. SP_SEL_BANGDIEM_DETAILED_BY_STUDENT: Xem bảng điểm chi tiết của sinh viên
 CREATE OR ALTER PROCEDURE SP_SEL_BANGDIEM_DETAILED_BY_STUDENT
     @CALLER_MANV VARCHAR(20),
     @MASV VARCHAR(20)
@@ -247,7 +334,44 @@ BEGIN
 END
 GO
 
--- SP_SEL_DASHBOARD_SUMMARY: Tổng hợp dữ liệu cho Dashboard
+-- 17. SP_SEL_BANGDIEM_BY_OWNER: Lấy toàn bộ điểm thi do giáo viên này quản lý (Phục vụ re-encrypt)
+CREATE OR ALTER PROCEDURE SP_SEL_BANGDIEM_BY_OWNER
+    @CALLER_MANV VARCHAR(20)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT b.MASV, b.MAHP, b.DIEMTHI
+    FROM BANGDIEM b
+    INNER JOIN SINHVIEN s ON s.MASV = b.MASV
+    INNER JOIN LOP l ON l.MALOP = s.MALOP
+    WHERE l.MANV = @CALLER_MANV;
+END
+GO
+
+-- 18. SP_UPD_BANGDIEM_RE_ENCRYPT: Cập nhật lại điểm sau khi re-encrypt có kiểm tra quyền sở hữu
+CREATE OR ALTER PROCEDURE SP_UPD_BANGDIEM_RE_ENCRYPT
+    @CALLER_MANV VARCHAR(20),
+    @MASV VARCHAR(20),
+    @MAHP VARCHAR(20),
+    @DIEMTHI VARBINARY(MAX)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    -- Ràng buộc: Giáo viên phải quản lý sinh viên đó mới được cập nhật điểm
+    IF NOT EXISTS (
+        SELECT 1 FROM SINHVIEN s
+        INNER JOIN LOP l ON l.MALOP = s.MALOP
+        WHERE s.MASV = @MASV AND l.MANV = @CALLER_MANV
+    )
+        THROW 50013, N'Không có quyền cập nhật điểm cho sinh viên này.', 1;
+
+    UPDATE BANGDIEM
+    SET DIEMTHI = @DIEMTHI
+    WHERE MASV = @MASV AND MAHP = @MAHP;
+END
+GO
+
+-- 19. SP_SEL_DASHBOARD_SUMMARY: Tổng hợp dữ liệu cho Dashboard
 CREATE OR ALTER PROCEDURE SP_SEL_DASHBOARD_SUMMARY
     @CALLER_MANV VARCHAR(20)
 AS
@@ -261,10 +385,20 @@ BEGIN
 END
 GO
 
--- SP_SEL_HOCPHAN: Tải danh mục học phần
+-- 20. SP_SEL_HOCPHAN: Tải danh mục học phần
 CREATE OR ALTER PROCEDURE SP_SEL_HOCPHAN AS
 BEGIN
     SET NOCOUNT ON;
     SELECT MAHP, TENHP, SOTC FROM HOCPHAN ORDER BY MAHP;
+END
+GO
+
+-- 21. SP_SEL_ALL_NHANVIEN: Lấy danh sách toàn bộ nhân viên (Thông tin công khai)
+CREATE OR ALTER PROCEDURE SP_SEL_ALL_NHANVIEN AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT MANV, HOTEN, EMAIL, TENDN
+    FROM NHANVIEN
+    ORDER BY MANV;
 END
 GO

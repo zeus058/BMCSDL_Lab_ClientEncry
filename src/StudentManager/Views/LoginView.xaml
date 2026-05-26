@@ -184,6 +184,16 @@
                                  helpers:PasswordBoxAssistant.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  Margin="0,0,0,22" />
 
+                    <Button Content="Quên mật khẩu / Đổi mật khẩu"
+                            Command="{Binding OpenChangePasswordCommand}"
+                            Style="{StaticResource GhostBtn}"
+                            HorizontalAlignment="Right"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Foreground="{StaticResource AccentBrushDark}"
+                            Cursor="Hand"
+                            Margin="0,-16,0,16" />
+
                     <Button Content="Đăng nhập"
                             Command="{Binding LoginCommand}"
                             IsDefault="True"

@@ -152,7 +152,7 @@ namespace StudentManager.ViewModels
         public StudentViewModel()
         {
             RefreshCommand = new RelayCommand(_ => LoadClasses());
-            NewStudentCommand = new RelayCommand(_ => PrepareNewStudent(), _ => SelectedClass != null);
+            NewStudentCommand = new RelayCommand(_ => PrepareNewStudent(), _ => SelectedClass != null && SelectedClass.MANV == CurrentUser.MANV);
             SaveCommand = new RelayCommand(_ => Save(), _ => CanSave());
             DeleteCommand = new RelayCommand(_ => Delete(), _ => CanDelete());
             LoadClasses();
@@ -183,20 +183,20 @@ namespace StudentManager.ViewModels
             return true;
         }
 
-        private void LoadClasses()
+        private async void LoadClasses()
         {
             var currentClassId = SelectedClass?.MALOP;
 
             try
             {
                 using var conn = DatabaseHelper.GetConnection();
-                var classes = conn.Query<Lop>(
-                    "SELECT * FROM LOP",
-                    commandType: CommandType.Text).ToList();
+                var classes = (await conn.QueryAsync<Lop>(
+                    "SP_SEL_LOP",
+                    commandType: CommandType.StoredProcedure)).ToList();
 
                 MyClasses = new ObservableCollection<Lop>(classes);
                 SelectedClass = classes.FirstOrDefault(item => item.MALOP == currentClassId) ?? classes.FirstOrDefault();
-                DatabaseHelper.LogQuery("SELECT * FROM LOP");
+                DatabaseHelper.LogQuery("EXEC SP_SEL_LOP");
             }
             catch (Exception ex)
             {
@@ -204,7 +204,7 @@ namespace StudentManager.ViewModels
             }
         }
 
-        private void LoadStudentsForClass()
+        private async void LoadStudentsForClass()
         {
             if (SelectedClass == null)
             {
@@ -217,15 +217,16 @@ namespace StudentManager.ViewModels
             try
             {
                 using var conn = DatabaseHelper.GetConnection();
-                _allStudents = conn.Query<SinhVien>(
-                    "SELECT * FROM SINHVIEN WHERE MALOP = @MALOP",
+                _allStudents = (await conn.QueryAsync<SinhVien>(
+                    "SP_SEL_SINHVIEN_BY_CLASS",
                     new
                     {
+                        CALLER_MANV = CurrentUser.MANV,
                         MALOP = SelectedClass.MALOP
                     },
-                    commandType: CommandType.Text).ToList();
+                    commandType: CommandType.StoredProcedure)).ToList();
 
-                DatabaseHelper.LogQuery("SELECT * FROM SINHVIEN", new { MALOP = SelectedClass.MALOP });
+                DatabaseHelper.LogQuery("EXEC SP_SEL_SINHVIEN_BY_CLASS", new { MALOP = SelectedClass.MALOP });
                 ApplySearchFilter();
 
                 if (SelectedStudent == null)
@@ -269,7 +270,7 @@ namespace StudentManager.ViewModels
             OnPropertyChanged(nameof(CanChangeStudentClass));
         }
 
-        private void Save()
+        private async void Save()
         {
             try
             {
@@ -280,7 +281,7 @@ namespace StudentManager.ViewModels
                 {
                     byte[] hashedPw = CryptoHelper.Sha1(EditTendn.Trim() + "|" + EditMatKhau);
 
-                    conn.Execute(
+                    await conn.ExecuteAsync(
                         "SP_INS_SINHVIEN",
                         new
                         {
@@ -306,19 +307,11 @@ namespace StudentManager.ViewModels
                         hashedPw = CryptoHelper.Sha1(EditTendn.Trim() + "|" + EditMatKhau);
                     }
 
-                    var sqlUpdate = @"
-                        UPDATE SINHVIEN 
-                        SET HOTEN = @HOTEN, 
-                            NGAYSINH = @NGAYSINH, 
-                            DIACHI = @DIACHI, 
-                            TENDN = @TENDN" 
-                        + (string.IsNullOrWhiteSpace(EditMatKhau) ? "" : ", MATKHAU = @MK") +
-                        " WHERE MASV = @MASV";
-
-                    conn.Execute(
-                        sqlUpdate,
+                    await conn.ExecuteAsync(
+                        "SP_UPD_SINHVIEN",
                         new
                         {
+                            CALLER_MANV = CurrentUser.MANV,
                             MASV = EditMasv.Trim(),
                             HOTEN = EditHoten.Trim(),
                             NGAYSINH = EditNgaysinh,
@@ -326,9 +319,9 @@ namespace StudentManager.ViewModels
                             TENDN = EditTendn.Trim(),
                             MK = hashedPw
                         },
-                        commandType: CommandType.Text);
+                        commandType: CommandType.StoredProcedure);
 
-                    DatabaseHelper.LogQuery("UPDATE SINHVIEN", new { MASV = EditMasv.Trim() });
+                    DatabaseHelper.LogQuery("EXEC SP_UPD_SINHVIEN", new { MASV = EditMasv.Trim() });
                     StatusMessage = "Đã cập nhật thông tin sinh viên.";
                 }
 
@@ -340,7 +333,7 @@ namespace StudentManager.ViewModels
             }
         }
 
-        private void Delete()
+        private async void Delete()
         {
             if (SelectedStudent == null)
                 return;
@@ -355,7 +348,7 @@ namespace StudentManager.ViewModels
             try
             {
                 using var conn = DatabaseHelper.GetConnection();
-                conn.Execute(
+                await conn.ExecuteAsync(
                     "SP_DEL_SINHVIEN_BY_OWNER",
                     new
                     {

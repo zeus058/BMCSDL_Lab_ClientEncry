@@ -145,16 +145,15 @@ namespace StudentManager.ViewModels
 
             try
             {
-                RsaKeyProvisioning.EnsureLocalKeyPair(CurrentUser.MANV);
-                var publicKeyXml = CryptoHelper.LoadPublicKeyLocal(CurrentUser.MANV);
+                var publicKeyXml = CurrentUser.PUBKEY;
                 if (string.IsNullOrWhiteSpace(publicKeyXml))
                 {
-                    StatusMessage = "Lỗi đọc khóa công khai.";
+                    StatusMessage = "Chưa có khóa công khai. Vui lòng đăng nhập lại.";
                     return;
                 }
 
                 var normalizedScore = score.ToString("0.##", CultureInfo.InvariantCulture);
-                var cipher = CryptoHelper.EncryptRSA(normalizedScore, publicKeyXml!);
+                var cipher = CryptoHelper.EncryptRSA(normalizedScore, publicKeyXml);
 
                 using var conn = DatabaseHelper.GetConnection();
                 conn.Execute(

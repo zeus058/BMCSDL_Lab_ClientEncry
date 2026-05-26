@@ -26,6 +26,39 @@
         </Grid>
 
         <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Panel nhập mật khẩu giải mã -->
+            <Border Grid.Row="0" Style="{StaticResource CardBorder}" Padding="16" Margin="0,0,0,14">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="🔒 Nhập mật khẩu để giải mã điểm:" 
+                               Foreground="{StaticResource TextPrimary}" 
+                               VerticalAlignment="Center" 
+                               Margin="0,0,12,0"
+                               FontWeight="SemiBold" />
+                    <PasswordBox x:Name="DecryptPass" 
+                                 Width="240" Height="38" 
+                                 Margin="0,0,12,0" 
+                                 VerticalContentAlignment="Center"
+                                 PasswordChanged="PasswordBox_PasswordChanged" />
+                    <Button Content="Giải mã điểm" 
+                            Command="{Binding DecryptGradesCommand}"
+                            Style="{StaticResource ActionBtn}"
+                            Padding="25,0" Height="38"
+                            Foreground="White" />
+                    <TextBlock Text="✓ Đã giải mã" 
+                               Foreground="#0D9488" 
+                               FontWeight="Bold" 
+                               VerticalAlignment="Center" 
+                               Margin="16,0,0,0"
+                               Visibility="{Binding IsDecrypted, Converter={StaticResource BoolToVis}}" />
+                </StackPanel>
+            </Border>
+
+            <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="320" />
                 <ColumnDefinition Width="20" />
@@ -141,6 +174,7 @@
                     </DataGrid>
                 </DockPanel>
             </Border>
+        </Grid>
         </Grid>
     </Grid>
 </UserControl>
