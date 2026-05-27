@@ -50,5 +50,16 @@ namespace StudentManager.Helpers
                 builder.Append(b.ToString("x2"));
             return builder.ToString();
         }
+
+        /// <summary>
+        /// Xác thực mật khẩu Admin cố định (master password).
+        /// Mật khẩu mặc định: "admin123"
+        /// </summary>
+        private static readonly string AdminPasswordHash = Sha1Hex("admin123");
+
+        public static bool VerifyAdminPassword(string password)
+        {
+            return Sha1Hex(password) == AdminPasswordHash;
+        }
     }
 }

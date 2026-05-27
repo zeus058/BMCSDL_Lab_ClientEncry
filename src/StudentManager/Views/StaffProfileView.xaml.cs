@@ -19,6 +19,14 @@ namespace StudentManager.Views
             }
         }
 
+        private void AdminPasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is StaffProfileViewModel vm && sender is PasswordBox pb)
+            {
+                vm.AdminPassword = pb.Password;
+            }
+        }
+
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.Source == sender && DataContext is StaffProfileViewModel vm)

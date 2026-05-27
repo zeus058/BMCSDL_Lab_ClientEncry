@@ -1,6 +1,7 @@
 <UserControl x:Class="StudentManager.Views.StaffProfileView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:helpers="clr-namespace:StudentManager.Helpers"
              xmlns:viewmodels="clr-namespace:StudentManager.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -27,6 +28,9 @@
         <Style x:Key="CenteredColHeader" TargetType="DataGridColumnHeader">
             <Setter Property="HorizontalContentAlignment" Value="Center" />
         </Style>
+        <!-- BooleanToVisibilityConverter -->
+        <BooleanToVisibilityConverter x:Key="BoolToVisLocal" />
+        <helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis" />
     </UserControl.Resources>
 
     <Grid Margin="6">
@@ -42,7 +46,7 @@
         </StackPanel>
 
         <TabControl Grid.Row="1" SelectionChanged="TabControl_SelectionChanged">
-            <!-- TAB 1: HỒ SƠ CÁ NHÂN -->
+            <!-- ========== TAB 1: HỒ SƠ CÁ NHÂN ========== -->
             <TabItem Header="Hồ sơ cá nhân">
                 <Grid Margin="0,12,0,0">
                     <Border Style="{StaticResource CardBorder}" 
@@ -134,17 +138,10 @@
                 </Grid>
             </TabItem>
 
-            <!-- TAB 2: QUẢN LÝ NHÂN VIÊN -->
+            <!-- ========== TAB 2: DANH SÁCH NHÂN VIÊN (chỉ xem) ========== -->
             <TabItem Header="Danh sách nhân viên">
                 <Grid Margin="0,12,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="240" />
-                        <RowDefinition Height="16" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <!-- Danh sách nhân viên -->
-                    <Border Grid.Row="0" Style="{StaticResource CardBorder}" Padding="0">
+                    <Border Style="{StaticResource CardBorder}" Padding="0">
                         <DataGrid ItemsSource="{Binding Employees}"
                                   AutoGenerateColumns="False"
                                   IsReadOnly="True"
@@ -171,85 +168,167 @@
                             </DataGrid.Columns>
                         </DataGrid>
                     </Border>
+                </Grid>
+            </TabItem>
 
-                    <!-- Form Thêm nhân viên -->
-                    <Border Grid.Row="2" Style="{StaticResource CardBorder}">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
+            <!-- ========== TAB 3: ADMIN MANAGER ========== -->
+            <TabItem Header="Admin Manager">
+                <Grid Margin="0,12,0,0">
+                    <!-- LOCKED STATE: Nhập mật khẩu admin -->
+                    <Border Style="{StaticResource CardBorder}" 
+                            Padding="32"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            MaxWidth="480"
+                            Visibility="{Binding IsAdminUnlocked, Converter={StaticResource InverseBoolToVis}}">
+                        <StackPanel>
+                            <Border Width="64" Height="64" 
+                                    CornerRadius="32" 
+                                    Background="{StaticResource AccentBrushSoft}"
+                                    HorizontalAlignment="Center"
+                                    Margin="0,0,0,18">
+                                <TextBlock Text="🔒" FontSize="28" 
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Center" />
+                            </Border>
 
-                                <Grid Grid.Row="0" Margin="0,0,0,14">
+                            <TextBlock Text="Xác thực Admin"
+                                       FontSize="20"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource TextPrimary}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Nhập mật khẩu quản trị viên để truy cập chức năng quản lý lương."
+                                       Foreground="{StaticResource TextMuted}"
+                                       TextWrapping="Wrap"
+                                       TextAlignment="Center"
+                                       Margin="0,8,0,20" />
+
+                            <TextBlock Text="Mật khẩu Admin"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,0,6" />
+                            <PasswordBox x:Name="AdminPass"
+                                         PasswordChanged="AdminPasswordBox_PasswordChanged"
+                                         Padding="10,8"
+                                         Margin="0,0,0,16" />
+
+                            <Button Content="Xác thực"
+                                    Command="{Binding UnlockAdminCommand}"
+                                    Style="{StaticResource PrimaryBtnFixed}"
+                                    Height="40" />
+
+                            <TextBlock Text="{Binding AdminStatusMessage}"
+                                       Foreground="{StaticResource BrushDanger}"
+                                       FontWeight="SemiBold"
+                                       TextWrapping="Wrap"
+                                       Margin="0,12,0,0"
+                                       HorizontalAlignment="Center"
+                                       Visibility="{Binding AdminStatusMessage, Converter={StaticResource StringToVis}}" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- UNLOCKED STATE: Giao diện quản lý lương -->
+                    <Grid Visibility="{Binding IsAdminUnlocked, Converter={StaticResource BoolToVisLocal}}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="16" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="16" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Header -->
+                        <StackPanel Grid.Row="0" Orientation="Horizontal">
+                            <Border Width="36" Height="36" 
+                                    CornerRadius="10" 
+                                    Background="{StaticResource AccentBrushSoft}"
+                                    Margin="0,0,12,0">
+                                <TextBlock Text="🔓" FontSize="18" 
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Center" />
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Admin Manager"
+                                           FontSize="18"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimary}" />
+                                <TextBlock Text="Cập nhật lương cơ bản cho nhân viên (mã hóa RSA bằng Public Key của nhân viên)"
+                                           Foreground="{StaticResource TextMuted}"
+                                           FontSize="12" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Danh sách nhân viên (chọn để cập nhật lương) -->
+                        <Border Grid.Row="2" Style="{StaticResource CardBorder}" Padding="0">
+                            <DataGrid ItemsSource="{Binding AdminEmployees}"
+                                      SelectedItem="{Binding SelectedAdminEmployee}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      SelectionMode="Single">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Mã NV"
+                                                        Binding="{Binding MANV}"
+                                                        Width="120"
+                                                        HeaderStyle="{StaticResource CenteredColHeader}"
+                                                        ElementStyle="{StaticResource SvIdCellText}" />
+                                    <DataGridTextColumn Header="Họ tên"
+                                                        Binding="{Binding HOTEN}"
+                                                        Width="*"
+                                                        ElementStyle="{StaticResource SvCellText}" />
+                                    <DataGridTextColumn Header="Email"
+                                                        Binding="{Binding EMAIL}"
+                                                        Width="180"
+                                                        ElementStyle="{StaticResource SvCellText}" />
+                                    <DataGridTextColumn Header="Tên đăng nhập"
+                                                        Binding="{Binding TENDN}"
+                                                        Width="130"
+                                                        HeaderStyle="{StaticResource CenteredColHeader}"
+                                                        ElementStyle="{StaticResource SvCenterCellText}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+
+                        <!-- Form cập nhật lương -->
+                        <Border Grid.Row="4" Style="{StaticResource CardBorder}" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="Cập nhật lương" Style="{StaticResource SectionTitle}" Margin="0,0,0,12" />
+
+                                <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" MinWidth="140" />
+                                        <ColumnDefinition Width="200" />
+                                        <ColumnDefinition Width="16" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Thêm nhân viên mới" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" />
-                                    <Button Grid.Column="1" Command="{Binding PrepareNewEmployeeCommand}" Style="{StaticResource ToolbarBtn}" Padding="15,8" MinHeight="0">
+
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Lương cơ bản mới:"
+                                               VerticalAlignment="Center"
+                                               Foreground="{StaticResource TextSecondary}"
+                                               FontWeight="SemiBold" />
+                                    <TextBox Grid.Column="1"
+                                             Text="{Binding NewLuong, UpdateSourceTrigger=PropertyChanged}"
+                                             VerticalAlignment="Center" />
+                                    <Button Grid.Column="3"
+                                            Command="{Binding UpdateSalaryCommand}"
+                                            Style="{StaticResource ToolbarPrimaryBtn}"
+                                            MinWidth="160">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE710;" Margin="0,0,8,0" VerticalAlignment="Center" />
-                                            <TextBlock Text="Nhập mới" VerticalAlignment="Center" />
+                                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE74E;" Margin="0,0,8,0" />
+                                            <TextBlock Text="Cập nhật lương" />
                                         </StackPanel>
                                     </Button>
                                 </Grid>
 
-                                <UniformGrid Grid.Row="1" Columns="3" Margin="0,0,0,12">
-                                    <StackPanel Margin="0,0,12,0">
-                                        <TextBlock Text="Mã nhân viên (*)" Margin="0,0,0,6" Style="{StaticResource FormLabel}" />
-                                        <TextBox Text="{Binding EditManv, UpdateSourceTrigger=PropertyChanged}" />
-                                    </StackPanel>
-                                    <StackPanel Margin="0,0,12,0">
-                                        <TextBlock Text="Họ tên (*)" Margin="0,0,0,6" Style="{StaticResource FormLabel}" />
-                                        <TextBox Text="{Binding EditHoten, UpdateSourceTrigger=PropertyChanged}" />
-                                    </StackPanel>
-                                    <StackPanel>
-                                        <TextBlock Text="Email" Margin="0,0,0,6" Style="{StaticResource FormLabel}" />
-                                        <TextBox Text="{Binding EditEmail, UpdateSourceTrigger=PropertyChanged}" />
-                                    </StackPanel>
-                                </UniformGrid>
-
-                                <UniformGrid Grid.Row="2" Columns="3" Margin="0,0,0,12">
-                                    <StackPanel Margin="0,0,12,0">
-                                        <TextBlock Text="Tên đăng nhập (*)" Margin="0,0,0,6" Style="{StaticResource FormLabel}" />
-                                        <TextBox Text="{Binding EditTendn, UpdateSourceTrigger=PropertyChanged}" />
-                                    </StackPanel>
-                                    <StackPanel Margin="0,0,12,0">
-                                        <TextBlock Text="Mật khẩu (*)" Margin="0,0,0,6" Style="{StaticResource FormLabel}" />
-                                        <TextBox Text="{Binding EditMatKhau, UpdateSourceTrigger=PropertyChanged}" />
-                                    </StackPanel>
-                                    <StackPanel>
-                                        <TextBlock Text="Lương cơ bản (*)" Margin="0,0,0,6" Style="{StaticResource FormLabel}" />
-                                        <TextBox Text="{Binding EditLuong, UpdateSourceTrigger=PropertyChanged}" />
-                                    </StackPanel>
-                                </UniformGrid>
-
-                                <StackPanel Grid.Row="3" Margin="0,8,0,0">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <Button Grid.Column="0" Command="{Binding AddEmployeeCommand}" Style="{StaticResource ToolbarPrimaryBtn}" HorizontalAlignment="Left" MinWidth="180">
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE74E;" Margin="0,0,8,0" />
-                                                <TextBlock Text="Lưu nhân viên" />
-                                            </StackPanel>
-                                        </Button>
-                                    </Grid>
-                                    
-                                    <TextBlock Text="{Binding StatusMessage}" 
-                                               Margin="0,12,0,0" 
-                                               Foreground="{StaticResource AccentBrushDark}" 
-                                               FontWeight="SemiBold"
-                                               TextWrapping="Wrap" />
-                                </StackPanel>
-                            </Grid>
-                        </ScrollViewer>
-                    </Border>
+                                <TextBlock Text="{Binding AdminStatusMessage}"
+                                           Margin="0,12,0,0"
+                                           Foreground="{StaticResource AccentBrushDark}"
+                                           FontWeight="SemiBold"
+                                           TextWrapping="Wrap"
+                                           Visibility="{Binding AdminStatusMessage, Converter={StaticResource StringToVis}}" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
                 </Grid>
             </TabItem>
         </TabControl>

@@ -35,11 +35,13 @@ namespace StudentManager.ViewModels
 
         public ICommand LoginCommand { get; }
         public ICommand OpenChangePasswordCommand { get; }
+        public ICommand OpenRegisterCommand { get; }
 
         public LoginViewModel()
         {
             LoginCommand = new RelayCommand(_ => ExecuteLogin(), _ => CanLogin());
             OpenChangePasswordCommand = new RelayCommand(_ => ExecuteOpenChangePassword());
+            OpenRegisterCommand = new RelayCommand(_ => ExecuteOpenRegister());
         }
 
         private bool CanLogin() =>
@@ -138,6 +140,15 @@ namespace StudentManager.ViewModels
             {
                 var changePwWindow = new ChangePasswordWindow();
                 changePwWindow.ShowDialog();
+            });
+        }
+
+        private void ExecuteOpenRegister()
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var registerWindow = new RegisterWindow();
+                registerWindow.ShowDialog();
             });
         }
     }

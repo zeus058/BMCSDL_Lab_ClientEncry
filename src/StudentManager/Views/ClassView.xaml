@@ -167,7 +167,8 @@
                     </StackPanel>
                     <StackPanel>
                         <TextBlock Text="Nhân viên phụ trách" Margin="0,0,0,6" />
-                        <TextBox Text="{Binding EditManv, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Text="{Binding EditManv, UpdateSourceTrigger=PropertyChanged}"
+                                 IsReadOnly="{Binding IsMalopReadOnly}" />
                     </StackPanel>
                 </UniformGrid>
 

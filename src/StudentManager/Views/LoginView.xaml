@@ -26,7 +26,7 @@
             </Grid.ColumnDefinitions>
 
             <Grid Grid.Column="0" Margin="0,0,28,0">
-                <StackPanel VerticalAlignment="Center">
+                <StackPanel VerticalAlignment="Bottom">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <Border Width="54"
                                 Height="54"
@@ -162,7 +162,7 @@
             <Border Grid.Column="1"
                     Style="{StaticResource CardBorder}"
                     Padding="32"
-                    VerticalAlignment="Center"
+                    VerticalAlignment="Bottom"
                     MaxWidth="420">
                 <StackPanel>
                     <TextBlock Text="Truy cập hệ thống"
@@ -182,22 +182,45 @@
                     <TextBlock Text="Mật khẩu" Margin="0,0,0,6" />
                     <PasswordBox helpers:PasswordBoxAssistant.BindPassword="True"
                                  helpers:PasswordBoxAssistant.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 Margin="0,0,0,22" />
+                                 Margin="0,0,0,8" />
 
                     <Button Content="Quên mật khẩu / Đổi mật khẩu"
                             Command="{Binding OpenChangePasswordCommand}"
-                            Style="{StaticResource GhostBtn}"
                             HorizontalAlignment="Right"
                             Background="Transparent"
                             BorderThickness="0"
                             Foreground="{StaticResource AccentBrushDark}"
                             Cursor="Hand"
-                            Margin="0,-16,0,16" />
+                            Margin="0,0,0,18"
+                            FontSize="12.5">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <TextBlock x:Name="Txt"
+                                           Text="{TemplateBinding Content}"
+                                           Foreground="{TemplateBinding Foreground}"
+                                           FontSize="{TemplateBinding FontSize}"
+                                           FontWeight="Medium" />
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Txt" Property="TextDecorations" Value="Underline" />
+                                        <Setter TargetName="Txt" Property="Foreground" Value="{StaticResource AccentBrush}" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
 
                     <Button Content="Đăng nhập"
                             Command="{Binding LoginCommand}"
                             IsDefault="True"
                             Style="{StaticResource PrimaryBtnFixed}" />
+
+                    <Button Content="Đăng ký tài khoản mới"
+                            Command="{Binding OpenRegisterCommand}"
+                            Style="{StaticResource GhostBtn}"
+                            Margin="0,10,0,0"
+                            Height="40"
+                            Cursor="Hand" />
 
                     <Border Background="{StaticResource BgSurface2}"
                             BorderBrush="{StaticResource BrushDivider}"

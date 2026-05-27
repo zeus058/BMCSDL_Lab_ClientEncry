@@ -115,18 +115,6 @@ BEGIN
 END
 GO
 
--- 6. SP_SEL_LOP_BY_OWNER: Lấy danh sách lớp do nhân viên quản lý
-CREATE OR ALTER PROCEDURE SP_SEL_LOP_BY_OWNER
-    @CALLER_MANV VARCHAR(20)
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT MALOP, TENLOP, MANV
-    FROM LOP
-    WHERE MANV = @CALLER_MANV
-    ORDER BY MALOP;
-END
-GO
 
 -- 7. SP_INS_LOP: Thêm lớp học mới
 CREATE OR ALTER PROCEDURE SP_INS_LOP
@@ -146,12 +134,12 @@ BEGIN
 END
 GO
 
--- 8. SP_UPD_LOP: Cập nhật lớp học có kiểm tra quyền sở hữu
+-- 8. SP_UPD_LOP: Cập nhật lớp học có kiểm tra quyền sở hữu (Chỉ cho phép cập nhật tên lớp, không cho đổi nhân viên phụ trách)
 CREATE OR ALTER PROCEDURE SP_UPD_LOP
     @CALLER_MANV VARCHAR(20),
     @MALOP VARCHAR(20),
     @TENLOP NVARCHAR(100),
-    @NEW_MANV VARCHAR(20)
+    @NEW_MANV VARCHAR(20) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -160,7 +148,7 @@ BEGIN
         THROW 50005, N'Bạn không có quyền cập nhật lớp này.', 1;
 
     UPDATE LOP
-    SET TENLOP = @TENLOP, MANV = @NEW_MANV
+    SET TENLOP = @TENLOP
     WHERE MALOP = @MALOP;
 END
 GO
@@ -393,12 +381,28 @@ BEGIN
 END
 GO
 
--- 21. SP_SEL_ALL_NHANVIEN: Lấy danh sách toàn bộ nhân viên (Thông tin công khai)
+-- 21. SP_SEL_ALL_NHANVIEN: Lấy danh sách toàn bộ nhân viên (Bao gồm PUBKEY để Admin mã hóa lương)
 CREATE OR ALTER PROCEDURE SP_SEL_ALL_NHANVIEN AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT MANV, HOTEN, EMAIL, TENDN
+    SELECT MANV, HOTEN, EMAIL, TENDN, PUBKEY
     FROM NHANVIEN
     ORDER BY MANV;
+END
+GO
+
+-- 22. SP_UPD_LUONG_ADMIN: Admin cập nhật lương đã mã hóa cho nhân viên
+CREATE OR ALTER PROCEDURE SP_UPD_LUONG_ADMIN
+    @TARGET_MANV VARCHAR(20),
+    @NEW_LUONG VARBINARY(MAX)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF NOT EXISTS (SELECT 1 FROM NHANVIEN WHERE MANV = @TARGET_MANV)
+        THROW 50016, N'Nhân viên không tồn tại trong hệ thống.', 1;
+
+    UPDATE NHANVIEN
+    SET LUONG = @NEW_LUONG
+    WHERE MANV = @TARGET_MANV;
 END
 GO

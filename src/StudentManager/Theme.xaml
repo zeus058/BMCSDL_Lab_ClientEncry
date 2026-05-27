@@ -3,7 +3,7 @@
                     xmlns:helpers="clr-namespace:StudentManager.Helpers">
     <helpers:StringToVisibilityConverter x:Key="StringToVis" />
     <BooleanToVisibilityConverter x:Key="BoolToVis" />
-    <FontFamily x:Key="AppFont">./Fonts/#Montserrat</FontFamily>
+    <FontFamily x:Key="AppFont">pack://application:,,,/StudentManager;component/Fonts/#Montserrat, Segoe UI, Arial</FontFamily>
 
     <Color x:Key="ColorBgBase">#FFF4F7FB</Color>
     <Color x:Key="ColorBgSurface1">#FFFFFFFF</Color>

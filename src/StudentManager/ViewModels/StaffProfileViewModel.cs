@@ -12,7 +12,9 @@ namespace StudentManager.ViewModels
 {
     public class StaffProfileViewModel : ViewModelBase
     {
-        // Properties for personal profile
+        // ============================================================
+        // PROPERTIES: Hồ sơ cá nhân (Tab 1)
+        // ============================================================
         private string _manv = "";
         public string Manv { get => _manv; set => SetProperty(ref _manv, value); }
 
@@ -42,7 +44,9 @@ namespace StudentManager.ViewModels
             set => SetProperty(ref _decryptedLuongcb, value);
         }
 
-        // Properties for staff list
+        // ============================================================
+        // PROPERTIES: Danh sách nhân viên (Tab 2)
+        // ============================================================
         private ObservableCollection<NhanVien> _employees = new();
         public ObservableCollection<NhanVien> Employees
         {
@@ -50,42 +54,73 @@ namespace StudentManager.ViewModels
             set => SetProperty(ref _employees, value);
         }
 
-        // Properties for new employee input form
-        private string _editManv = "";
-        public string EditManv { get => _editManv; set => SetProperty(ref _editManv, value); }
+        // ============================================================
+        // PROPERTIES: Admin Manager (Tab 3)
+        // ============================================================
+        private string _adminPassword = "";
+        public string AdminPassword
+        {
+            get => _adminPassword;
+            set => SetProperty(ref _adminPassword, value);
+        }
 
-        private string _editHoten = "";
-        public string EditHoten { get => _editHoten; set => SetProperty(ref _editHoten, value); }
+        private bool _isAdminUnlocked;
+        public bool IsAdminUnlocked
+        {
+            get => _isAdminUnlocked;
+            set => SetProperty(ref _isAdminUnlocked, value);
+        }
 
-        private string _editEmail = "";
-        public string EditEmail { get => _editEmail; set => SetProperty(ref _editEmail, value); }
+        private string _adminStatusMessage = "";
+        public string AdminStatusMessage
+        {
+            get => _adminStatusMessage;
+            set => SetProperty(ref _adminStatusMessage, value);
+        }
 
-        private string _editTendn = "";
-        public string EditTendn { get => _editTendn; set => SetProperty(ref _editTendn, value); }
+        private ObservableCollection<NhanVien> _adminEmployees = new();
+        public ObservableCollection<NhanVien> AdminEmployees
+        {
+            get => _adminEmployees;
+            set => SetProperty(ref _adminEmployees, value);
+        }
 
-        private string _editMatKhau = "";
-        public string EditMatKhau { get => _editMatKhau; set => SetProperty(ref _editMatKhau, value); }
+        private NhanVien? _selectedAdminEmployee;
+        public NhanVien? SelectedAdminEmployee
+        {
+            get => _selectedAdminEmployee;
+            set => SetProperty(ref _selectedAdminEmployee, value);
+        }
 
-        private string _editLuong = "";
-        public string EditLuong { get => _editLuong; set => SetProperty(ref _editLuong, value); }
+        private string _newLuong = "";
+        public string NewLuong
+        {
+            get => _newLuong;
+            set => SetProperty(ref _newLuong, value);
+        }
 
-        // Commands
+        // ============================================================
+        // COMMANDS
+        // ============================================================
         public ICommand LoadDecryptedSalaryCommand { get; }
         public ICommand LoadEmployeesCommand { get; }
-        public ICommand AddEmployeeCommand { get; }
-        public ICommand PrepareNewEmployeeCommand { get; }
+        public ICommand UnlockAdminCommand { get; }
+        public ICommand UpdateSalaryCommand { get; }
 
         public StaffProfileViewModel()
         {
             LoadDecryptedSalaryCommand = new RelayCommand(_ => LoadDecryptedSalary());
             LoadEmployeesCommand = new RelayCommand(_ => LoadEmployees());
-            AddEmployeeCommand = new RelayCommand(_ => AddEmployee(), _ => CanAddEmployee());
-            PrepareNewEmployeeCommand = new RelayCommand(_ => PrepareNewEmployee());
+            UnlockAdminCommand = new RelayCommand(_ => UnlockAdmin());
+            UpdateSalaryCommand = new RelayCommand(_ => UpdateSalary(), _ => CanUpdateSalary());
 
             LoadProfile();
             LoadEmployees();
         }
 
+        // ============================================================
+        // TAB 1: Hồ sơ cá nhân
+        // ============================================================
         private void LoadProfile()
         {
             Manv = CurrentUser.MANV;
@@ -147,6 +182,9 @@ namespace StudentManager.ViewModels
             }
         }
 
+        // ============================================================
+        // TAB 2: Danh sách nhân viên (chỉ xem)
+        // ============================================================
         private async void LoadEmployees()
         {
             try
@@ -165,93 +203,115 @@ namespace StudentManager.ViewModels
             }
         }
 
-        private bool CanAddEmployee()
-        {
-            return !string.IsNullOrWhiteSpace(EditManv) &&
-                   !string.IsNullOrWhiteSpace(EditHoten) &&
-                   !string.IsNullOrWhiteSpace(EditTendn) &&
-                   !string.IsNullOrWhiteSpace(EditMatKhau) &&
-                   !string.IsNullOrWhiteSpace(EditLuong);
-        }
+        // ============================================================
+        // TAB 3: Admin Manager
+        // ============================================================
 
-        private void PrepareNewEmployee()
+        /// <summary>
+        /// Xác thực mật khẩu admin cố định (master password) để mở khóa tab Admin.
+        /// </summary>
+        private void UnlockAdmin()
         {
-            EditManv = "";
-            EditHoten = "";
-            EditEmail = "";
-            EditTendn = "";
-            EditMatKhau = "";
-            EditLuong = "";
-            StatusMessage = "Vui lòng nhập thông tin chi tiết của nhân viên mới.";
-        }
-
-        private async void AddEmployee()
-        {
-            if (!CanAddEmployee())
+            if (string.IsNullOrWhiteSpace(AdminPassword))
             {
-                StatusMessage = "Vui lòng điền đầy đủ các thông tin bắt buộc.";
+                AdminStatusMessage = "Vui lòng nhập mật khẩu admin.";
+                return;
+            }
+
+            if (CryptoHelper.VerifyAdminPassword(AdminPassword))
+            {
+                IsAdminUnlocked = true;
+                AdminStatusMessage = "Đã xác thực admin thành công.";
+                LoadAdminEmployees();
+            }
+            else
+            {
+                IsAdminUnlocked = false;
+                AdminStatusMessage = "Mật khẩu admin không chính xác.";
+            }
+        }
+
+        /// <summary>
+        /// Tải danh sách nhân viên kèm PUBKEY cho Admin (để mã hóa lương).
+        /// </summary>
+        private async void LoadAdminEmployees()
+        {
+            try
+            {
+                using var conn = DatabaseHelper.GetConnection();
+                var list = (await conn.QueryAsync<NhanVien>(
+                    "SP_SEL_ALL_NHANVIEN",
+                    commandType: CommandType.StoredProcedure)).ToList();
+
+                AdminEmployees = new ObservableCollection<NhanVien>(list);
+            }
+            catch (Exception ex)
+            {
+                AdminStatusMessage = UserFacingMessage.ForLoad(ex);
+            }
+        }
+
+        private bool CanUpdateSalary()
+        {
+            return IsAdminUnlocked &&
+                   SelectedAdminEmployee != null &&
+                   !string.IsNullOrWhiteSpace(NewLuong);
+        }
+
+        /// <summary>
+        /// Admin cập nhật lương cho nhân viên: mã hóa RSA bằng PUBKEY của nhân viên đích.
+        /// Admin có thể GHI lương mới nhưng KHÔNG THỂ ĐỌC lương cũ (chỉ NV sở hữu Private Key mới giải mã được).
+        /// </summary>
+        private async void UpdateSalary()
+        {
+            if (SelectedAdminEmployee == null)
+            {
+                AdminStatusMessage = "Vui lòng chọn nhân viên cần cập nhật lương.";
+                return;
+            }
+
+            if (!double.TryParse(NewLuong.Trim(), out _))
+            {
+                AdminStatusMessage = "Lương cơ bản phải là một số hợp lệ.";
+                return;
+            }
+
+            string targetPubKey = SelectedAdminEmployee.PUBKEY ?? "";
+            if (string.IsNullOrWhiteSpace(targetPubKey))
+            {
+                AdminStatusMessage = $"Nhân viên {SelectedAdminEmployee.MANV} chưa có khóa công khai. Nhân viên cần đăng nhập ít nhất 1 lần để sinh khóa.";
                 return;
             }
 
             try
             {
-                StatusMessage = "Đang sinh cặp khóa bảo mật và mã hóa dữ liệu tại Client...";
-                
-                string manv = EditManv.Trim();
-                string hoten = EditHoten.Trim();
-                string email = EditEmail.Trim();
-                string tendn = EditTendn.Trim();
-                string password = EditMatKhau;
-                string rawSalary = EditLuong.Trim();
+                AdminStatusMessage = $"Đang mã hóa lương bằng Public Key của {SelectedAdminEmployee.HOTEN} tại Client...";
 
-                if (!double.TryParse(rawSalary, out _))
-                {
-                    StatusMessage = "Lương cơ bản phải là một số hợp lệ.";
-                    return;
-                }
+                string rawSalary = NewLuong.Trim();
+                string pubKeyXml = targetPubKey;
 
-                // Run CPU-intensive cryptographic operations asynchronously to avoid UI thread blocking
-                var (hashedPw, keys, encryptedLuong) = await Task.Run(() =>
-                {
-                    // 1. SHA-1 băm mật khẩu tại Client
-                    byte[] pwHash = CryptoHelper.Sha1(tendn + "|" + password);
+                // Mã hóa RSA lương mới bằng Public Key của nhân viên đích (Client-side encryption)
+                byte[] encryptedLuong = CryptoHelper.EncryptRSA(rawSalary, pubKeyXml);
 
-                    // 2. Sinh khóa Deterministic RSA-2048 tại Client từ (password, MANV)
-                    var keyPair = CryptoHelper.GenerateDeterministicKeyPair(password, manv);
-
-                    // 3. Mã hóa lương bằng RSA Public Key tại Client
-                    byte[] encSalary = CryptoHelper.EncryptRSA(rawSalary, keyPair.PublicKeyXml);
-
-                    return (pwHash, keyPair, encSalary);
-                });
-
-                // 4. Gọi stored procedure lưu dữ liệu đã mã hóa lên DB
                 using var conn = DatabaseHelper.GetConnection();
                 await conn.ExecuteAsync(
-                    "SP_INS_PUBLIC_ENCRYPT_NHANVIEN",
+                    "SP_UPD_LUONG_ADMIN",
                     new
                     {
-                        MANV = manv,
-                        HOTEN = hoten,
-                        EMAIL = string.IsNullOrEmpty(email) ? null : email,
-                        LUONG = encryptedLuong,
-                        TENDN = tendn,
-                        MK = hashedPw,
-                        PUB = keys.PublicKeyXml
+                        TARGET_MANV = SelectedAdminEmployee.MANV,
+                        NEW_LUONG = encryptedLuong
                     },
                     commandType: CommandType.StoredProcedure);
 
-                DatabaseHelper.LogQuery("EXEC SP_INS_PUBLIC_ENCRYPT_NHANVIEN", new { MANV = manv });
+                DatabaseHelper.LogQuery("EXEC SP_UPD_LUONG_ADMIN", new { TARGET_MANV = SelectedAdminEmployee.MANV });
 
-                StatusMessage = $"Đã thêm nhân viên {hoten} ({manv}) thành công.";
-                PrepareNewEmployee();
-                LoadEmployees();
+                AdminStatusMessage = $"Đã cập nhật lương thành công cho nhân viên {SelectedAdminEmployee.HOTEN} ({SelectedAdminEmployee.MANV}).";
+                NewLuong = "";
             }
             catch (Exception ex)
             {
-                StatusMessage = UserFacingMessage.ForSave(ex);
+                AdminStatusMessage = UserFacingMessage.ForSave(ex);
             }
         }
     }
 }
-

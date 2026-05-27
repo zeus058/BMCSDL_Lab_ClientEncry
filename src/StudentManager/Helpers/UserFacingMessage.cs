@@ -92,6 +92,7 @@ namespace StudentManager.Helpers
                 50013 => "Bạn không có quyền nhập điểm cho sinh viên này.",
                 50014 => "Mã học phần không tồn tại trong hệ thống.",
                 50015 => "Mật khẩu hiện tại không đúng.",
+                50016 => "Nhân viên không tồn tại trong hệ thống.",
                 547 => "Thao tác bị từ chối vì dữ liệu đang được sử dụng ở nơi khác.",
                 2627 or 2601 => "Giá trị nhập bị trùng với dữ liệu đã có.",
                 -2 => "Hết thời gian chờ máy chủ cơ sở dữ liệu.",
