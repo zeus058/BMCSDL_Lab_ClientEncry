@@ -16,8 +16,6 @@ GO
 USE QLSVNhom;
 GO
 
-
-
 -- Bảng NHANVIEN: Lưu trữ thông tin nhân viên, lương (mã hóa RSA) và mật khẩu (Hash SHA1)
 CREATE TABLE NHANVIEN (
     MANV VARCHAR(20) PRIMARY KEY,
