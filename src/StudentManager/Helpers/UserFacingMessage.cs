@@ -19,14 +19,8 @@ namespace StudentManager.Helpers
         public static string ForLogin(Exception? ex) =>
             FromException(ex, "Không đăng nhập được. Kiểm tra kết nối và thử lại sau.");
 
-        public static string ForExport(Exception? ex) =>
-            FromException(ex, "Không xuất được tệp. Kiểm tra quyền ghi thư mục hoặc đóng tệp đang mở.");
-
         public static string ForSalaryQuery(Exception? ex) =>
             FromException(ex, "Không truy vấn được lương. Kiểm tra mật khẩu và kết nối cơ sở dữ liệu.");
-
-        public static string ForLocalKey(Exception? ex) =>
-            FromException(ex, "Không thao tác được với khóa cục bộ. Kiểm tra quyền ghi thư mục Keys.");
 
         public static string ForUnhandledAppError() =>
             "Đã xảy ra lỗi không mong đợi. Bạn có thể khởi động lại ứng dụng.";

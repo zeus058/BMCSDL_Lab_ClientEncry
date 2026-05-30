@@ -16,12 +16,7 @@ GO
 USE QLSVNhom;
 GO
 
--- Thiết lập Master Key để hỗ trợ mã hóa dữ liệu
-IF NOT EXISTS (SELECT 1 FROM sys.symmetric_keys WHERE name = N'##MS_DatabaseMasterKey##')
-BEGIN
-    CREATE MASTER KEY ENCRYPTION BY PASSWORD = N'DatabaseMasterKeyPassword123!';
-END
-GO
+
 
 -- Bảng NHANVIEN: Lưu trữ thông tin nhân viên, lương (mã hóa RSA) và mật khẩu (Hash SHA1)
 CREATE TABLE NHANVIEN (

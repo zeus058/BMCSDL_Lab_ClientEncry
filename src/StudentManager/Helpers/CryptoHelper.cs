@@ -40,26 +40,5 @@ namespace StudentManager.Helpers
             return sha1.ComputeHash(Encoding.UTF8.GetBytes(input));
         }
 
-        /// <summary>Băm SHA-1 → chuỗi hex.</summary>
-        public static string Sha1Hex(string input)
-        {
-            using var sha1 = SHA1.Create();
-            var hash = sha1.ComputeHash(Encoding.UTF8.GetBytes(input));
-            var builder = new StringBuilder(hash.Length * 2);
-            foreach (var b in hash)
-                builder.Append(b.ToString("x2"));
-            return builder.ToString();
-        }
-
-        /// <summary>
-        /// Xác thực mật khẩu Admin cố định (master password).
-        /// Mật khẩu mặc định: "admin123"
-        /// </summary>
-        private static readonly string AdminPasswordHash = Sha1Hex("admin123");
-
-        public static bool VerifyAdminPassword(string password)
-        {
-            return Sha1Hex(password) == AdminPasswordHash;
-        }
     }
 }

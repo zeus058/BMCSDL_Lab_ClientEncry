@@ -90,7 +90,6 @@ namespace StudentManager.ViewModels
         public MainViewModel()
         {
             Instance = this;
-            ToastService.ToastRequested += OnToastRequested;
 
             ConnectionOk = DatabaseHelper.TestConnection();
             if (!ConnectionOk)
@@ -131,7 +130,6 @@ namespace StudentManager.ViewModels
         public bool AdminEmployeesIsActive => SelectedNav == "AdminEmployees";
         public bool AdminSalaryIsActive => SelectedNav == "AdminSalary";
 
-        private void OnToastRequested(string message, bool isError) => PushToast(message, isError);
 
         public void PushToast(string message, bool isError = false)
         {
@@ -166,7 +164,6 @@ namespace StudentManager.ViewModels
 
         private void Logout()
         {
-            ToastService.ToastRequested -= OnToastRequested;
             Instance = null;
             CurrentUser.Clear();
 
