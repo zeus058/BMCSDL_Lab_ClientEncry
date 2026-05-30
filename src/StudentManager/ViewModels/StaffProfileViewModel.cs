@@ -114,9 +114,18 @@ namespace StudentManager.ViewModels
             UnlockAdminCommand = new RelayCommand(_ => UnlockAdmin());
             UpdateSalaryCommand = new RelayCommand(_ => UpdateSalary(), _ => CanUpdateSalary());
 
+            if (CurrentUser.MANV == "ADMIN")
+            {
+                IsAdminUnlocked = true;
+                LoadAdminEmployees();
+            }
+
             LoadProfile();
             LoadEmployees();
         }
+
+        public bool IsAdmin => CurrentUser.MANV == "ADMIN";
+        public bool IsEmployee => !IsAdmin;
 
         // ============================================================
         // TAB 1: Hồ sơ cá nhân

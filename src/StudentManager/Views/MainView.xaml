@@ -35,6 +35,12 @@
         <DataTemplate DataType="{x:Type viewmodels:ClassTranscriptViewModel}">
             <views:ClassTranscriptView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:AdminEmployeeListViewModel}">
+            <views:AdminEmployeeListView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:AdminSalaryAdjustmentViewModel}">
+            <views:AdminSalaryAdjustmentView />
+        </DataTemplate>
     </Window.Resources>
 
     <Grid Margin="18">
@@ -141,7 +147,7 @@
                     </StackPanel>
 
                     <StackPanel Margin="0,22,0,0">
-                        <Button Command="{Binding ShowClassCommand}" HorizontalContentAlignment="Left">
+                        <Button Command="{Binding ShowClassCommand}" HorizontalContentAlignment="Left" Visibility="{Binding IsEmployee, Converter={StaticResource BoolToVis}}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource NavItemBtn}">
                                 <Style.Triggers>
@@ -159,7 +165,7 @@
                         </StackPanel>
                     </Button>
 
-                    <Button Command="{Binding ShowStudentCommand}" HorizontalContentAlignment="Left">
+                    <Button Command="{Binding ShowStudentCommand}" HorizontalContentAlignment="Left" Visibility="{Binding IsEmployee, Converter={StaticResource BoolToVis}}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource NavItemBtn}">
                                 <Style.Triggers>
@@ -177,7 +183,7 @@
                         </StackPanel>
                     </Button>
 
-                    <Button Command="{Binding ShowHocPhanCommand}" HorizontalContentAlignment="Left">
+                    <Button Command="{Binding ShowHocPhanCommand}" HorizontalContentAlignment="Left" Visibility="{Binding IsEmployee, Converter={StaticResource BoolToVis}}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource NavItemBtn}">
                                 <Style.Triggers>
@@ -195,7 +201,7 @@
                         </StackPanel>
                     </Button>
 
-                    <Button Command="{Binding ShowGradeCommand}" HorizontalContentAlignment="Left">
+                    <Button Command="{Binding ShowGradeCommand}" HorizontalContentAlignment="Left" Visibility="{Binding IsEmployee, Converter={StaticResource BoolToVis}}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource NavItemBtn}">
                                 <Style.Triggers>
@@ -213,7 +219,7 @@
                         </StackPanel>
                     </Button>
 
-                    <Button Command="{Binding ShowClassGradesCommand}" HorizontalContentAlignment="Left">
+                    <Button Command="{Binding ShowClassGradesCommand}" HorizontalContentAlignment="Left" Visibility="{Binding IsEmployee, Converter={StaticResource BoolToVis}}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource NavItemBtn}">
                                 <Style.Triggers>
@@ -231,7 +237,7 @@
                         </StackPanel>
                     </Button>
 
-                    <Button Command="{Binding ShowMonitorCommand}" HorizontalContentAlignment="Left">
+                    <Button Command="{Binding ShowMonitorCommand}" HorizontalContentAlignment="Left" Visibility="{Binding IsEmployee, Converter={StaticResource BoolToVis}}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource NavItemBtn}">
                                 <Style.Triggers>
@@ -249,7 +255,7 @@
                         </StackPanel>
                     </Button>
 
-                    <Button Command="{Binding ShowEmployeeCommand}" HorizontalContentAlignment="Left">
+                    <Button Command="{Binding ShowEmployeeCommand}" HorizontalContentAlignment="Left" Visibility="{Binding IsEmployee, Converter={StaticResource BoolToVis}}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource NavItemBtn}">
                                 <Style.Triggers>
@@ -264,6 +270,43 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE77B;" Margin="0,0,10,0" FontSize="16" />
                             <TextBlock Text="Nhân viên" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Admin specific buttons -->
+                    <Button Command="{Binding ShowAdminEmployeesCommand}" HorizontalContentAlignment="Left" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavItemBtn}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding AdminEmployeesIsActive}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource AccentBrushSoft}" />
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                        <Setter Property="Foreground" Value="{StaticResource AccentBrushDark}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE77B;" Margin="0,0,10,0" FontSize="16" />
+                            <TextBlock Text="Danh sách" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding ShowAdminSalaryCommand}" HorizontalContentAlignment="Left" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavItemBtn}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding AdminSalaryIsActive}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource AccentBrushSoft}" />
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                        <Setter Property="Foreground" Value="{StaticResource AccentBrushDark}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE74E;" Margin="0,0,10,0" FontSize="16" />
+                            <TextBlock Text="Sửa lương" />
                         </StackPanel>
                     </Button>
                     </StackPanel>

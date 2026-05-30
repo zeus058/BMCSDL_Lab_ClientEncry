@@ -82,6 +82,8 @@ namespace StudentManager.ViewModels
         public ICommand ShowClassGradesCommand { get; }
         public ICommand ShowMonitorCommand { get; }
         public ICommand ShowEmployeeCommand { get; }
+        public ICommand ShowAdminEmployeesCommand { get; }
+        public ICommand ShowAdminSalaryCommand { get; }
         public ICommand LogoutCommand { get; }
         public ICommand DismissToastCommand { get; }
 
@@ -101,11 +103,23 @@ namespace StudentManager.ViewModels
             ShowClassGradesCommand = new RelayCommand(_ => Navigate(new ClassTranscriptViewModel(), "Báo cáo điểm lớp", "ClassTranscript"));
             ShowMonitorCommand = new RelayCommand(_ => Navigate(new MonitorViewModel(), "Giám sát truy vấn", "Monitor"));
             ShowEmployeeCommand = new RelayCommand(_ => Navigate(new StaffProfileViewModel(), "Nhân viên", "StaffProfile"));
+            ShowAdminEmployeesCommand = new RelayCommand(_ => Navigate(new AdminEmployeeListViewModel(), "Danh sách nhân viên", "AdminEmployees"));
+            ShowAdminSalaryCommand = new RelayCommand(_ => Navigate(new AdminSalaryAdjustmentViewModel(), "Sửa lương", "AdminSalary"));
             LogoutCommand = new RelayCommand(_ => Logout());
             DismissToastCommand = new RelayCommand(_ => ToastVisible = false);
 
-            Navigate(new ClassViewModel(), "Quản lý lớp", "Class");
+            if (IsAdmin)
+            {
+                Navigate(new AdminEmployeeListViewModel(), "Danh sách nhân viên", "AdminEmployees");
+            }
+            else
+            {
+                Navigate(new ClassViewModel(), "Quản lý lớp", "Class");
+            }
         }
+
+        public bool IsAdmin => CurrentUser.MANV == "ADMIN";
+        public bool IsEmployee => !IsAdmin;
 
         public bool ClassIsActive => SelectedNav == "Class";
         public bool StudentIsActive => SelectedNav == "Student";
@@ -114,6 +128,8 @@ namespace StudentManager.ViewModels
         public bool ClassGradesIsActive => SelectedNav == "ClassTranscript";
         public bool MonitorIsActive => SelectedNav == "Monitor";
         public bool EmployeeIsActive => SelectedNav == "StaffProfile";
+        public bool AdminEmployeesIsActive => SelectedNav == "AdminEmployees";
+        public bool AdminSalaryIsActive => SelectedNav == "AdminSalary";
 
         private void OnToastRequested(string message, bool isError) => PushToast(message, isError);
 
@@ -144,6 +160,8 @@ namespace StudentManager.ViewModels
             OnPropertyChanged(nameof(ClassGradesIsActive));
             OnPropertyChanged(nameof(MonitorIsActive));
             OnPropertyChanged(nameof(EmployeeIsActive));
+            OnPropertyChanged(nameof(AdminEmployeesIsActive));
+            OnPropertyChanged(nameof(AdminSalaryIsActive));
         }
 
         private void Logout()

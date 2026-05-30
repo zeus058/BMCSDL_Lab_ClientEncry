@@ -9,6 +9,17 @@ BEGIN TRY
        ------------------------------------------------------------- */
     INSERT INTO NHANVIEN (MANV, HOTEN, EMAIL, LUONG, TENDN, MATKHAU, PUBKEY)
     VALUES (
+        'ADMIN',
+        N'Quản trị viên',
+        'admin@fit.hcmus.vn',
+        NULL,
+        'admin',
+        0x70324EA85824EAEDA7C9A39650C3E9A56744F991,
+        ''
+    );
+
+    INSERT INTO NHANVIEN (MANV, HOTEN, EMAIL, LUONG, TENDN, MATKHAU, PUBKEY)
+    VALUES (
         'NV01',
         N'Nguyễn Văn A',
         'nva@fit.hcmus.vn',

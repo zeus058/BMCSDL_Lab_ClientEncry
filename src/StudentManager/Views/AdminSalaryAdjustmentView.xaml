@@ -1,0 +1,121 @@
+<UserControl x:Class="StudentManager.Views.AdminSalaryAdjustmentView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewmodels="clr-namespace:StudentManager.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewmodels:AdminSalaryAdjustmentViewModel}">
+    <UserControl.Resources>
+        <!-- Standard Cell -->
+        <Style x:Key="SvCellText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <!-- Monospace and bold ID -->
+        <Style x:Key="SvIdCellText" TargetType="TextBlock" BasedOn="{StaticResource SvCellText}">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontFamily" Value="Consolas" />
+        </Style>
+        <!-- Centered cell text -->
+        <Style x:Key="SvCenterCellText" TargetType="TextBlock" BasedOn="{StaticResource SvCellText}">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+        </Style>
+        <!-- Centered column header -->
+        <Style x:Key="CenteredColHeader" TargetType="DataGridColumnHeader">
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="16" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="16" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,4,0,0">
+            <TextBlock Text="Sửa lương" Style="{StaticResource PageTitle}" />
+            <TextBlock Text="Cập nhật lương cơ bản cho nhân viên (mã hóa RSA bằng Public Key của nhân viên tại Client)."
+                       Foreground="{StaticResource TextMuted}" />
+        </StackPanel>
+
+        <!-- Danh sách nhân viên (chọn để cập nhật lương) -->
+        <Border Grid.Row="2" Style="{StaticResource CardBorder}" Padding="0">
+            <DataGrid ItemsSource="{Binding AdminEmployees}"
+                      SelectedItem="{Binding SelectedAdminEmployee}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      SelectionMode="Single">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Mã NV"
+                                        Binding="{Binding MANV}"
+                                        Width="120"
+                                        HeaderStyle="{StaticResource CenteredColHeader}"
+                                        ElementStyle="{StaticResource SvIdCellText}" />
+                    <DataGridTextColumn Header="Họ tên"
+                                        Binding="{Binding HOTEN}"
+                                        Width="*"
+                                        ElementStyle="{StaticResource SvCellText}" />
+                    <DataGridTextColumn Header="Email"
+                                        Binding="{Binding EMAIL}"
+                                        Width="200"
+                                        ElementStyle="{StaticResource SvCellText}" />
+                    <DataGridTextColumn Header="Tên đăng nhập"
+                                        Binding="{Binding TENDN}"
+                                        Width="150"
+                                        HeaderStyle="{StaticResource CenteredColHeader}"
+                                        ElementStyle="{StaticResource SvCenterCellText}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Form cập nhật lương -->
+        <Border Grid.Row="4" Style="{StaticResource CardBorder}" Padding="20">
+            <StackPanel>
+                <TextBlock Text="{Binding SelectedEmployeeHeader}" Style="{StaticResource SectionTitle}" Margin="0,0,0,12" />
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" MinWidth="140" />
+                        <ColumnDefinition Width="200" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" 
+                               Text="Lương cơ bản mới:"
+                               VerticalAlignment="Center"
+                               Foreground="{StaticResource TextSecondary}"
+                               FontWeight="SemiBold" />
+                    <TextBox Grid.Column="1"
+                             Text="{Binding NewLuong, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding IsEmployeeSelected}"
+                             VerticalAlignment="Center" />
+                    <Button Grid.Column="3"
+                            Command="{Binding UpdateSalaryCommand}"
+                            IsEnabled="{Binding IsEmployeeSelected}"
+                            Style="{StaticResource ToolbarPrimaryBtn}"
+                            MinWidth="160">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE74E;" Margin="0,0,8,0" />
+                            <TextBlock Text="Cập nhật lương" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+
+                <TextBlock Text="{Binding AdminStatusMessage}"
+                           Margin="0,12,0,0"
+                           Foreground="{StaticResource AccentBrushDark}"
+                           FontWeight="SemiBold"
+                           TextWrapping="Wrap"
+                           Visibility="{Binding AdminStatusMessage, Converter={StaticResource StringToVis}}" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
